@@ -1,3 +1,139 @@
+_V_.Vast = _V_.Component.extend({
+
+    options: {
+        VASTServers: []
+    },
+    ads: [],
+    ad: undefined,
+    cachedSrc: undefined,
+
+    init: function(player, options){
+        this._super(player, options);
+        this.hide();
+        
+        player.one('play', function(){
+            this.vast.startAd();
+        });
+
+        this.player.addEvent('skip', this.proxy(this.skipAd));
+
+        // player.addEvent('vastload', this.proxy(this.onVastLoad));
+        player.addEvent('vastload', this.proxy(this.onVastLoad));
+        var vastComponent = this;
+
+        for(var i=0;i<this.options.VASTServers.length;i++) {
+            fetchVAST(this.options.VASTServers[i], function(ads){
+                vastComponent.ads.push(ads);
+                player.triggerEvent("vastload");
+            });
+        }
+    },
+
+    createElement: function(){
+        var player = this.player;
+        var el = _V_.createElement("a", {
+            className: ("vjs-vast-blocker")
+        });
+        var skipButton = _V_.createElement("div", {
+            className: ("vjs-skip-button")
+        });
+        skipButton.onclick = function() {
+            player.triggerEvent('skip');
+            return false;
+        };
+        el.appendChild(skipButton);
+        return el;
+    },
+
+    firePixel: function(url) {
+        console.log(url);
+    },
+
+    startAd: function() {
+        var self = this;
+        var player = self.player;
+
+        player.controlBar.progressControl.hide();
+        self.show();
+
+        // Don't have an ad yet? Let's wait for one...
+        if(this.ad === undefined) {
+            // For some reason, we can't pause now. We have to wait for a time update.
+            player.one('timeupdate', function() {
+                this.pause();
+                this.loadingSpinner.show();
+            });
+
+            setTimeout(function(){
+                player.triggerEvent('skip');
+            }, 2000);
+            console.log("no ad yet...");
+            return;
+        }
+
+        // Yay, we have an ad. Let's play it!
+        var linear = self.ad.linear();
+        if(linear === undefined) {
+            // No linear ad, and that's all the player will handle right now.
+            player.triggerEvent('skip');
+            return;
+        }
+
+        var blocker = self.el;
+        blocker.onclick = function() {
+            player.pause();
+            if(blocker.getAttribute("href") !== null) {
+                for(var i=0;i<linear.clickTracking.length;i++) {
+                    var url = linear.clickTracking[i];
+                    self.firePixel(url);
+                }
+            }
+        };
+
+        player.controlBar.el.style.setProperty('z-index', '2');
+
+
+
+        this.cachedSrc = player.currentSrc();
+
+        // Setup events
+        // this.on('timeupdate', timeupdate);
+
+        player.src(linear.sources());
+        player.load();
+        player.play();
+
+        player.one('ended', function() {
+            this.triggerEvent("skip");
+        });
+    },
+
+    skipAd: function() {
+        this.hide();
+        this.player.controlBar.progressControl.show();
+        if(this.cachedSrc !== undefined) {
+            this.src(this.cachedSrc);
+            this.cachedSrc = undefined;
+        }
+
+        this.player.play();
+    },
+
+    onVastLoad: function() {
+        if(this.ads.length > 0) {
+            this.ad = this.ads[0][0];
+        }
+        var linear = this.ad.linear();
+        if (linear && linear.clickThrough) {
+            this.el.setAttribute("href", linear.clickThrough);
+            this.el.setAttribute("target", "_blank");
+        }
+    }
+});
+
+
+
+
 function firePixel(url, parentElement){
     var pixel = document.createElement('img');
     pixel.setAttribute('src', url);
@@ -25,15 +161,6 @@ function skipAd() {
         this.el().removeChild(blocker[i]);
     }
     
-    this.controlBar.progressControl.show();
-    
-    if(vast.cachedSrc !== undefined) {
-        this.src(vast.cachedSrc);
-        vast.cachedSrc = undefined;
-    }
-    
-    this.load();
-    this.one('loadedmetadata', this.play);
 }
 
 function startAd() {
@@ -63,7 +190,6 @@ function startAd() {
     
     this.el().appendChild(blocker);
     
-    this.controlBar.el().style.setProperty('z-index', '2');
 
     if (vast.ad !== undefined) {
         var linear = vast.ad.linear();
@@ -89,15 +215,7 @@ function startAd() {
 
         this.one('ended', skipAd);
     } else {
-        // For some reason, we can't pause now. We have to wait for a time update.
-        this.one('timeupdate', function() {
-            this.pause();
-            this.loadingSpinner.show();
-        });
 
-        setTimeout(function(){
-            player.trigger('skip');
-        }, 2000);
     }
 }
 
