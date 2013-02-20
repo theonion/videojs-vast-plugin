@@ -3,16 +3,16 @@ function responsive (options) {
   options = options || {};
 
   var responsiveEl = document.createElement('div');
-  responsiveEl.className = 'vsj-responsive';
-  this.getEl().appendChild(responsiveEl);
+  responsiveEl.className = 'vjs-responsive';
+  this.el().appendChild(responsiveEl);
 
   this.on('loadedmetadata', function() {
-
     var height, width;
-    var videoEl = this.getEl().getElementsByTagName("video")[0];
-    if(videoEl.videoHeight && videoEl.videoWidth) {
-      width = videoEl.videoWidth;
-      height = videoEl.videoHeight;
+    var techEl = this.el().getElementsByClassName("vjs-tech")[0];
+    var posterEl = this.el().getElementsByClassName("vjs-poster")[0];
+    if(techEl.videoHeight && techEl.videoWidth) {
+      width = techEl.videoWidth;
+      height = techEl.videoHeight;
     }
 
     // If the aspectRatio is specified, trust that.
@@ -22,22 +22,28 @@ function responsive (options) {
     }
 
     // If we made a responsive div, and have a height and width, then let's do this thing.
-    if(videoEl.localName === 'video' && width && height) {
+    if(width && height) {
 
-      console.log("Setting up styles...");
+      this.el().style.display = 'inline-block';
+      this.el().style.position = 'relative';
+      this.el().style.height = '';
+      this.el().style.width = '';
 
-      this.getEl().style.display = 'inline-block';
-      this.getEl().style.position = 'relative';
-      this.getEl().style.height = '';
-      this.getEl().style.width = '';
-      
-      videoEl.style.position = 'absolute';
-      videoEl.style.top = 0;
-      videoEl.style.bottom = 0;
-      videoEl.style.left = 0;
-      videoEl.style.right = 0;
-      videoEl.style.height = '';
-      videoEl.style.width = '';
+      posterEl.style.position = 'absolute';
+      posterEl.style.top = 0;
+      posterEl.style.bottom = 0;
+      posterEl.style.left = 0;
+      posterEl.style.right = 0;
+      posterEl.style.height = '';
+      posterEl.style.width = '';
+
+      techEl.style.position = 'absolute';
+      techEl.style.top = 0;
+      techEl.style.bottom = 0;
+      techEl.style.left = 0;
+      techEl.style.right = 0;
+      techEl.style.height = '';
+      techEl.style.width = '';
 
       responsiveEl.style.paddingTop = ((height / width) * 100 ) + '%';
     }
