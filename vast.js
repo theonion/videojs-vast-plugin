@@ -1,3 +1,73 @@
+if (!Array.prototype.indexOf){
+    Array.prototype.indexOf = function(elt /*, from*/) {
+        var len = this.length >>> 0;
+
+        var from = Number(arguments[1]) || 0;
+        from = (from < 0) ? Math.ceil(from) : Math.floor(from);
+        if (from < 0)
+            from += len;
+
+        for (; from < len; from++) {
+            if (from in this &&
+                this[from] === elt)
+            return from;
+        }
+        return -1;
+    };
+}
+
+var get = function(url, onSuccess, onError){
+  var local, request;
+
+  if (window.XDomainRequest) {
+    request = new XDomainRequest();
+  } else {
+    request = new XMLHttpRequest();
+  }
+
+  if(url.indexOf("%%CACHEBUSTER%%") !== -1 || url.indexOf("[TIMESTAMP]") !== -1) {
+    var cachebust = Math.floor(Math.random() * 10e10);
+    url = url.replace("%%CACHEBUSTER%%", cachebust);
+    url = url.replace("[TIMESTAMP]", cachebust);
+  }
+
+  try {
+    request.open('GET', url);
+  } catch(e) {
+    onError(e);
+  }
+
+  local = (url.indexOf('file:') === 0 || (window.location.href.indexOf('file:') === 0 && url.indexOf('http') === -1));
+
+  if (window.XDomainRequest) {
+    request.onerror = onError;
+    request.onload = function() {
+        onSuccess(request.responseText);
+    };
+  } else {
+      request.onreadystatechange = function() {
+        if (request.readyState === 4) {
+          if (request.status === 200 || local && request.status === 0) {
+            onSuccess(request.responseText);
+          } else {
+            if (onError) {
+              onError();
+            }
+          }
+        }
+      };
+  }
+
+  try {
+    request.send();
+  } catch(e) {
+    if (onError) {
+      onError(e);
+    }
+  }
+};
+
+
 /* Node helpers */
 function getNodeAttr(node, nodeName, attrName) {
     var nodes = node.getElementsByTagName(nodeName);
@@ -11,15 +81,15 @@ function getNodeAttr(node, nodeName, attrName) {
 function getNodeText(node, nodeName) {
     var nodes = node.getElementsByTagName(nodeName);
     if(nodes.length) {
-        return nodes[0].textContent;
+        return getTextContent(nodes[0]);
     } else {
         return undefined;
     }
 }
 
-/**************************************/
-/* Objects to hold the VAST node data */
-/**************************************/
+function getTextContent(node){
+    return node.textContent || node.text || node.innerText || node.innerHTML;
+}
 
 // JS compare function to sort the medidafiles, so that we can seelct the "best" ones.
 function compareMediaFiles(a, b) {
@@ -48,6 +118,9 @@ function compareMediaFiles(a, b) {
     return 0;
 }
 
+/**************************************/
+/* Objects to hold the VAST node data */
+/**************************************/
 function Linear(node) {
     /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
     /* The following attributes are available for the <Creative> (parent of <Linear>) element: */
@@ -72,12 +145,12 @@ function Linear(node) {
      * more child <ClickTracking> and <CustomClick> elements. */
     if(node.getElementsByTagName('VideoClicks').length > 0) {
         var clicksNode = node.getElementsByTagName('VideoClicks')[0];
-        this.clickThrough = clicksNode.getElementsByTagName('ClickThrough')[0].textContent;
+        this.clickThrough = getTextContent(clicksNode.getElementsByTagName('ClickThrough')[0]);
 
         this.clickTracking = [];
-        nodes = clicksNode.getElementsByTagName('ClickTracking');
-        for (var i=0;i<nodes.length;i++) {
-            this.clickTracking.push(nodes[i].textContent);
+        var clickTrackingNodes = clicksNode.getElementsByTagName('ClickTracking');
+        for (var i=0;i<clickTrackingNodes.length;i++) {
+            this.clickTracking.push(getTextContent(clickTrackingNodes[i]));
         }
         // TODO: Implement CustomClick?
     }
@@ -88,16 +161,15 @@ function Linear(node) {
     this.tracking = {};
     if(node.getElementsByTagName('TrackingEvents').length > 0) {
         var trackingEventsNode = node.getElementsByTagName('TrackingEvents')[0];
-        nodes = trackingEventsNode.getElementsByTagName('Tracking');
-        for (var j=0;j<nodes.length;j++) {
-            var eventName = nodes[j].getAttribute('event');
+        var trackingNodes = trackingEventsNode.getElementsByTagName('Tracking');
+        for (var j=0;j<trackingNodes.length;j++) {
+            var eventName = trackingNodes[j].getAttribute('event');
             if (this.tracking[eventName] === undefined) {
                 this.tracking[eventName] = [];
             }
-            this.tracking[eventName].push(nodes[j].textContent);
+            this.tracking[eventName].push(getTextContent(trackingNodes[j]));
         }
     }
-
 
     /* The <MediaFiles> element is a container for one or more <MediaFile> elements, each of
      * which contains a CDATA--wrapped URI to the media file to be downloaded or streamed for
@@ -115,12 +187,12 @@ function Linear(node) {
      * few different bitrates. Only the media file best matched to the video player system should
      * be displayed. The creative content should be the same for each media file. */
     this.mediaFiles = [];
-    nodes = node.getElementsByTagName('MediaFile');
+    var nodes = node.getElementsByTagName('MediaFile');
     for (var k=0;k<nodes.length;k++) {
         var mediaFile = {
             id: nodes[k].getAttribute('id'),
             delivery: nodes[k].getAttribute('delivery'),
-            src: nodes[k].textContent,
+            src: getTextContent(nodes[k]),
             type: nodes[k].getAttribute('type'),
             bitrate: nodes[k].getAttribute('bitrate'),
             width: parseInt(nodes[k].getAttribute('width'), 10),
@@ -133,8 +205,9 @@ function Linear(node) {
 
     // Given the media files we have, what souces should VideoJS try to use?
     this.sources = function(width, types) {
-        types = types || ['video/webm', 'video/mp4', 'video/ogv'];
-        
+        //Changed this to make mp4 first choice because Safari is now shipping with a finnicky webm implementation -SB
+        types = types || ['video/mp4', 'video/webm', 'video/ogv'];
+
         var typeSources = {};
         for(var i=0;i<this.mediaFiles.length;i++) {
             var thisType = this.mediaFiles[i].type;
@@ -173,13 +246,13 @@ function InLine(node) {
     // Required elements
     this.adSystem = getNodeText(node, 'AdSystem');
     this.title =  getNodeText(node, 'AdTitle');
-    
+
     this.creatives = [];
     nodes = node.getElementsByTagName('Creative');
     for (i=0;i<nodes.length;i++) {
-        var childNode = nodes[i].firstElementChild;
-        if(childNode.localName === "Linear") {
-            this.creatives.push(new Linear(childNode));
+        var linearNodes = nodes[i].getElementsByTagName("Linear");
+        for(var j=0; j<linearNodes.length; j++) {
+            this.creatives.push(new Linear(linearNodes[j]));
         }
         // TODO: Implement NonLinear, CompanionAds
     }
@@ -187,7 +260,7 @@ function InLine(node) {
     this.impressions = [];
     var nodes = node.getElementsByTagName('Impression');
     for (var i=0;i<nodes.length;i++) {
-        this.impressions.push(nodes[i].textContent);
+        this.impressions.push(getTextContent(nodes[i]));
     }
 
     // Optional elements
@@ -209,51 +282,90 @@ function InLine(node) {
 
     this.sources = function(width, types) {
         if(this.linear !== undefined) {
-            return this.linear.sources(width, types);
+            return this.linear().sources(width, types);
         }
         return [];
     };
 
 }
 
-function fetchVAST(url, cbk) {
-    var httpRequest;
-    if (window.XMLHttpRequest) { // Mozilla, Safari, ...
-        httpRequest = new XMLHttpRequest();
-    } else if (window.ActiveXObject) { // IE
-        try {
-            httpRequest = new ActiveXObject('Msxml2.XMLHTTP');
-        }
-        catch (e) {
-            try {
-                httpRequest = new ActiveXObject('Microsoft.XMLHTTP');
+/* A VAST Wrapper is used to redirect the video player to a secondary location for the Ad’s
+ * resource files and can also redirect to yet another VAST response. Using tracking events
+ * in the Wrapper, impressions and interactions can be tracked for the Ad that is eventually
+ * displayed. */
+function Wrapper(node) {
+    // Required elements
+    this.adSystem = getNodeText(node, 'AdSystem');
+    this.impressions = [];
+    var impression = getNodeText(node, 'Impression');
+    if (impression !== undefined) {
+        this.impressions.push(impression);
+    }
+    this.adTagURI = getNodeText(node, 'VASTAdTagURI');
+
+    // Optional Elements
+    this.error = getNodeText(node, 'Error');
+
+    // TODO: Implement Creatives, Extensions
+}
+
+var parseXml;
+
+if (typeof window.DOMParser != "undefined") {
+    parseXml = function(xmlStr) {
+        return ( new window.DOMParser() ).parseFromString(xmlStr, "text/xml");
+    };
+} else if (typeof window.ActiveXObject != "undefined" &&
+       new window.ActiveXObject("Microsoft.XMLDOM")) {
+    parseXml = function(xmlStr) {
+        var xmlDoc = new window.ActiveXObject("Microsoft.XMLDOM");
+        xmlDoc.async = "false";
+        xmlDoc.loadXML(xmlStr);
+        return xmlDoc;
+    };
+} else {
+    throw new Error("No XML parser found");
+}
+
+function fetchVAST(url, cbk, wrapper, videoAdId, companionTargeting) {
+    get(url, function(data) {
+        var xml = parseXml(data);
+        if (xml === null) {
+            if (cbk !== undefined) {
+                cbk();
             }
-            catch (e) {}
+            return;
         }
-    }
+        var ads = [];
+        var nodes = xml.getElementsByTagName('Ad');
+        for (var i=0;i<nodes.length;i++) {
+            videoAdId = videoAdId || nodes[i].getAttribute('id');
+            companionTargeting = companionTargeting || nodes[i].getAttribute('target');
+            if(nodes[i].getElementsByTagName('InLine').length > 0) {
+                var inline = new InLine(nodes[0]);
 
-    if (!httpRequest) {
-      console.log('Giving up :( Cannot create an XMLHTTP instance');
-      return false;
-    }
-    if(cbk !== undefined) {
-        httpRequest.onreadystatechange = function() {
-            if(this.readyState === 4) {
-                var ads = [];
-
-                var xml = this.responseXML;
-                var nodes = xml.getElementsByTagName('Ad');
-                for (var i=0;i<nodes.length;i++) {
-                    if(nodes[i].getElementsByTagName('InLine').length > 0) {
-                        var inline = new InLine(nodes[0]);
-                        ads.push(inline);
+                if(wrapper !== undefined) {
+                    for(var j=0;j<wrapper.impressions.length;j++) {
+                        inline.impressions.push(wrapper.impressions[j]);
                     }
-                    // TODO: <Wrapper>
                 }
-                cbk && cbk(ads);
+                inline.video_ad_id = videoAdId;
+                inline.companion_targeting = companionTargeting;
+                ads.push(inline);
             }
-        };
-    }
-    httpRequest.open('GET', url);
-    httpRequest.send();
+            if(nodes[i].getElementsByTagName('Wrapper').length > 0) {
+                var newWrapper = new Wrapper(nodes[0]);
+                if(wrapper !== undefined) {
+                    for(var k=0;k<wrapper.impressions.length;k++) {
+                        newWrapper.impressions.push(wrapper.impressions[k]);
+                    }
+                }
+                fetchVAST(newWrapper.adTagURI, cbk, newWrapper, videoAdId, companionTargeting);
+                return;
+            }
+        }
+        if (cbk !== undefined) {
+            cbk(ads);
+        }
+    }, cbk);
 }

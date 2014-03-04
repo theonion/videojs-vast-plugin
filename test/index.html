@@ -5,6 +5,7 @@
   <title>Video.js VAST Example</title>
 
   <link href="../videojs/video-js.css" rel="stylesheet" type="text/css">
+  <link href="../videojs-contrib-ads/video.ads.css" rel="stylesheet" type="text/css">
   <link href="../vast.video.css" rel="stylesheet" type="text/css">
 
   <style type="text/css">
@@ -19,6 +20,8 @@
 
   <!-- GENERATED LIST OF SOURCE FILES -->
   <script src="../videojs/minified.video.js"></script>
+  <script src="../videojs-contrib-ads/video.ads.js"></script>
+
   <script src="../responsive.video.js"></script>
   <script src="../vast.js"></script>
   <script src="../vast.video.js"></script>
@@ -44,19 +47,15 @@
 
   <script>
     (function() {
-      var vid1;
+      var vid1 = videojs('vid1');
 
-      // register the plugins
-      _V_.plugin('responsive', responsive);
-      _V_.plugin('vast', vast);
-
-      // initialize it
-      vid1 = _V_('vid1');
       vid1.responsive();
       
       // vid1.vast({VASTServers: ['http://ad.doubleclick.net/pfadx/N270.126913.6102203221521/B3876671.21;dcadv=2215309;sz=0x0;ord=%5btimestamp%5d;dcmt=text/xml']});
 
-      vid1.vast({VASTServers: ['http://ad.doubleclick.net/pfadx/N2870.3804.THEONION/B7370520.11;sz=0x0;dcmt=text/xml']});
+      vid1.vast({
+        url: 'http://ad.doubleclick.net/pfadx/N2870.3804.THEONION/B7370520.11;sz=0x0;dcmt=text/xml'
+      });
     })();
   </script>
 
