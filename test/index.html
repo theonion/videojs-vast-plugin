@@ -25,13 +25,6 @@
   <script src="../responsive.video.js"></script>
   <script src="../vast.js"></script>
   <script src="../vast.video.js"></script>
-  <script>
-      // Easy access to test Flash over HTML5. Add ?flash to URL
-      if (window.location.href.indexOf("?flash") !== -1) {
-        _V_.options.techOrder = ["flash"];
-        _V_.options.flash.swf = "../videojs/video-js.swf";
-      }
-  </script>
 </head>
 <body>
   <p style="background-color:#eee; border: 1px solid #777; padding: 10px; font-size: .8em; line-height: 1.5em; font-family: Verdana, sans-serif;">This page shows you how to create, register and initialize a Video.js plugin.</p>
@@ -50,11 +43,9 @@
       var vid1 = videojs('vid1');
 
       vid1.responsive();
-      
-      // vid1.vast({VASTServers: ['http://ad.doubleclick.net/pfadx/N270.126913.6102203221521/B3876671.21;dcadv=2215309;sz=0x0;ord=%5btimestamp%5d;dcmt=text/xml']});
-
+      vid1.ads();
       vid1.vast({
-        url: 'http://ad.doubleclick.net/pfadx/N2870.3804.THEONION/B7370520.11;sz=0x0;dcmt=text/xml'
+        url: 'http://videoads.theonion.com/vast/176.xml'
       });
     })();
   </script>
