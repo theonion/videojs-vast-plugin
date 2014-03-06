@@ -23,7 +23,7 @@
   <script src="../videojs-contrib-ads/video.ads.js"></script>
 
   <script src="../responsive.video.js"></script>
-  <script src="../vast.js"></script>
+  <script src="../vast-client.js"></script>
   <script src="../vast.video.js"></script>
 </head>
 <body>
@@ -39,15 +39,13 @@
   </video>
 
   <script>
-    (function() {
-      var vid1 = videojs('vid1');
+    var vid1 = videojs('vid1');
 
-      vid1.responsive();
-      vid1.ads();
-      vid1.vast({
-        url: 'http://videoads.theonion.com/vast/176.xml'
-      });
-    })();
+    vid1.responsive();
+    vid1.ads();
+    vid1.vast({
+      url: 'http://videoads.theonion.com/vast/176.xml'
+    });
   </script>
 
 </body>

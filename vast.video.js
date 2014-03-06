@@ -1,4 +1,5 @@
 (function(vjs) {
+"use strict";
   var
   extend = function(obj) {
     var arg, i, k;
@@ -11,6 +12,34 @@
       }
     }
     return obj;
+  },
+
+  createSourceObjects = function(media_files) {
+    var fileURLs = {};
+    var vidFormats = ['video/mp4', 'video/webm', 'video/ogv'];
+    // get a list of files with unique formats
+    for (var i = 0; i < media_files.length; i++) {
+      var file_url = media_files[i].fileURL;
+      var mime_type = media_files[i].mimeType;
+
+      if (vidFormats.indexOf(mime_type) >= 0) {
+        if(fileURLs[mime_type] === undefined) {
+          fileURLs[mime_type] = file_url;
+        } 
+      }
+    }
+
+    var sources = [];
+    for (var j=0; j < vidFormats.length; j++) {
+      var format = vidFormats[j];
+      if (fileURLs[format] !== undefined) {
+        sources.push({
+          type: format,
+          src: fileURLs[format]
+        });
+      }
+    }
+    return sources;
   },
 
   defaults = {
@@ -33,17 +62,55 @@
     }
 
     player.on('contentupdate', function(){
-      fetchVAST(options.url, function(ads){
-        if(ads !== undefined && ads.length > 0) {
-          player.vast.ad = ads[0];
-          player.trigger('adsready');
-        } else {
+      // fetchVAST(options.url, function(ads){
+      //   if(ads !== undefined && ads.length > 0) {
+      //     console.log(player.vast)
+      //     player.vast.ad = ads[0];
+      //     player.trigger('adsready');
+      //   } else {
+      //     player.trigger('adtimeout');
+      //     player.one('preroll?', function(){
+      //       player.trigger('adtimeout');
+      //     });
+      //   }
+      // });
+
+      DMVAST.client.get(options.url, function(response) {
+        if (response) {
+          for (var adIdx = 0; adIdx < response.ads.length; adIdx++) {
+            var ad = response.ads[adIdx];
+            for (var creaIdx = 0; creaIdx < ad.creatives.length; creaIdx++) {
+              var linearCreative = ad.creatives[creaIdx];
+              if (linearCreative.type !== "linear") continue;
+              
+              if (linearCreative.mediaFiles.length) {
+                player.vast.sources = createSourceObjects(linearCreative.mediaFiles);
+                player.vastTracker = new DMVAST.tracker(ad, linearCreative);
+                player.on('canplay', function() {this.vastTracker.load();});
+                player.on('timeupdate', function() {this.vastTracker.setProgress(this.currentTime());});
+                player.on('play', function() {this.vastTracker.setPaused(false);});
+                player.on('pause', function() {this.vastTracker.setPaused(true);});
+                break;
+              }
+            }
+
+            if (player.vastTracker) {
+              player.trigger("adsready");
+              break;
+            } else {
+              // Inform ad server we can't find suitable media file for this ad
+              DMVAST.util.track(ad.errorURLTemplates, {ERRORCODE: 403});
+            }
+          }
+        }
+
+        if (!player.vastTracker) {
+          // No pre-roll, start video
           player.trigger('adtimeout');
-          player.one('preroll?', function(){
-            player.trigger('adtimeout');
-          });
         }
       });
+
+
     });
 
     player.on('readyforpreroll', function() {
@@ -51,18 +118,22 @@
 
       player.autoplay(true);
       // play your linear ad content
-      var adSources = player.vast.ad.sources();
-
+      var adSources = player.vast.sources;
       player.src(adSources);
-      player.vast.linearEvent('creativeView');
-      player.vast.firePixel(player.vast.ad.impressions);
 
+      var clickthrough = DMVAST.util.resolveURLTemplates(
+        [player.vastTracker.clickThroughURLTemplate],
+        {CONTENTPLAYHEAD: player.vastTracker.progressFormated()}
+      )[0];
       var blocker = document.createElement("a");
       blocker.className = "vast-blocker";
-      blocker.href = player.vast.ad.linear().clickThrough;
+      blocker.href = clickthrough;
       blocker.target = "_blank";
       blocker.onclick = function() {
-        player.vast.firePixel(player.vast.ad.linear().clickTracking);
+        var clicktrackers = player.vastTracker.clickTrackingURLTemplate;
+        if (clicktrackers) {
+          player.vastTracker.trackURLs(clicktrackers);
+        }
       };
       player.vast.blocker = blocker;
       player.el().insertBefore(blocker, player.controlBar.el());
@@ -71,13 +142,6 @@
       skipButton.className = "vast-skip-button";
       player.vast.skipButton = skipButton;
       player.el().appendChild(skipButton);
-
-      player.vast.timeupdateEvents = {
-        0   : 'start',
-        0.25: 'firstQuartile',
-        0.5 : 'midpoint',
-        0.75: 'thirdQuartile'
-      };
 
       player.on("timeupdate", player.vast.timeupdate);
 
@@ -91,15 +155,12 @@
           return false;
         }
       };
-
-      player.one('ended', player.vast.ended);
     });
 
     player.vast.tearDown = function() {
       player.vast.ad = undefined;
       player.vast.skipButton.parentNode.removeChild(player.vast.skipButton);
       player.vast.blocker.parentNode.removeChild(player.vast.blocker);
-      player.off('ended', player.vast.ended);
       player.off('timeupdate', player.vast.timeupdate);
       player.ads.endLinearAdMode();
     };
@@ -107,13 +168,6 @@
     player.vast.timeupdate = function(e) {
       player.loadingSpinner.el().style.display = "none";
       var timeLeft = Math.ceil(settings.skip - player.currentTime());
-      var percentage = player.currentTime() / player.duration();
-      for (var threshold in player.vast.timeupdateEvents) {
-        if(threshold < percentage) {
-          player.vast.linearEvent(player.vast.timeupdateEvents[threshold]);
-          delete player.vast.timeupdateEvents[threshold];
-        }
-      }
       if(timeLeft > 0) {
         player.vast.skipButton.innerHTML = "Skip in " + timeLeft + "...";
       } else {
@@ -121,40 +175,6 @@
           player.vast.skipButton.className += " enabled";
           player.vast.skipButton.innerHTML = "Skip";
         }
-      }
-    };
-
-    player.vast.ended = function(e) {
-      player.vast.linearEvent("complete");
-      player.vast.tearDown();
-    };
-
-    player.vast.linearEvent = function(eventName) {
-      if (player.vast.ad === undefined) {
-        return;
-      }
-      var uri = player.vast.ad.linear().tracking[eventName];
-      if (uri !== undefined) {
-        player.vast.firePixel(uri);
-      }
-    };
-
-    player.vast.firePixel = function(uri) {
-      var type = Object.prototype.toString.call(uri);
-      var milliseconds = (new Date).getTime();
-      switch (type) {
-        case '[object String]':
-          var img = document.createElement('img');
-          img.src = uri.replace('%%CACHEBUSTER%%', milliseconds);
-          player.el().appendChild(img);
-          break;
-        case '[object Array]':
-          for(var i in uri) {
-            player.vast.firePixel(uri[i]);
-          }
-          break;
-        default:
-          throw new Error("Unrecognized uri type: " + type);
       }
     };
   };
