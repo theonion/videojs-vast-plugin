@@ -1,0 +1,23 @@
+{
+  "indent": 2,
+  "eqeqeq": true,
+  "curly": true,
+  "eqeqeq": true,
+  "immed": true,
+  "latedef": true,
+  "newcap": true,
+  "noarg": true,
+  "sub": true,
+  "undef": true,
+  "unused": true,
+  "boss": true,
+  "eqnull": true,
+  "browser": true,
+  "devel": true,
+  "predef": [
+    "videojs",
+    "DMVAST",
+    "console",
+    "Event"
+  ]
+}
