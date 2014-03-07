@@ -14,34 +14,6 @@
     return obj;
   },
 
-  createSourceObjects = function(media_files) {
-    var fileURLs = {};
-    var vidFormats = ['video/mp4', 'video/webm', 'video/ogv'];
-    // get a list of files with unique formats
-    for (var i = 0; i < media_files.length; i++) {
-      var file_url = media_files[i].fileURL;
-      var mime_type = media_files[i].mimeType;
-
-      if (vidFormats.indexOf(mime_type) >= 0) {
-        if(fileURLs[mime_type] === undefined) {
-          fileURLs[mime_type] = file_url;
-        } 
-      }
-    }
-
-    var sources = [];
-    for (var j=0; j < vidFormats.length; j++) {
-      var format = vidFormats[j];
-      if (fileURLs[format] !== undefined) {
-        sources.push({
-          type: format,
-          src: fileURLs[format]
-        });
-      }
-    }
-    return sources;
-  },
-
   defaults = {
     skip: 5,
   },
@@ -84,7 +56,7 @@
               if (linearCreative.type !== "linear") continue;
               
               if (linearCreative.mediaFiles.length) {
-                player.vast.sources = createSourceObjects(linearCreative.mediaFiles);
+                player.vast.sources = player.vast.createSourceObjects(linearCreative.mediaFiles);
                 player.vastTracker = new DMVAST.tracker(ad, linearCreative);
                 player.on('canplay', function() {this.vastTracker.load();});
                 player.on('timeupdate', function() {this.vastTracker.setProgress(this.currentTime());});
@@ -177,6 +149,34 @@
         }
       }
     };
+    player.vast.createSourceObjects = function(media_files) {
+      var fileURLs = {};
+      var vidFormats = ['video/mp4', 'video/webm', 'video/ogv'];
+      // get a list of files with unique formats
+      for (var i = 0; i < media_files.length; i++) {
+        var file_url = media_files[i].fileURL;
+        var mime_type = media_files[i].mimeType;
+
+        if (vidFormats.indexOf(mime_type) >= 0) {
+          if(fileURLs[mime_type] === undefined) {
+            fileURLs[mime_type] = file_url;
+          } 
+        }
+      }
+
+      var sources = [];
+      for (var j=0; j < vidFormats.length; j++) {
+        var format = vidFormats[j];
+        if (fileURLs[format] !== undefined) {
+          sources.push({
+            type: format,
+            src: fileURLs[format]
+          });
+        }
+      }
+      return sources;
+    };
+
   };
 
   vjs.plugin('vast', vastPlugin);

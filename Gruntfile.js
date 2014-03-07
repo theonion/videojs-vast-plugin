@@ -19,8 +19,7 @@ module.exports = function(grunt) {
           "http://vjs.zencdn.net/4.0/video.js",
           "videojs-contrib-ads/video.ads.js",
           "vast-client.js"
-        ],
-        template: require("./spec/runner_template.js"),
+        ]
       }
     },
     watch: {
