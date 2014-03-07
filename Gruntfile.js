@@ -7,11 +7,11 @@ module.exports = function(grunt) {
         options: {
           '-W083': true,
         },
-        src: ['vast.video.js', specs],
+        src: ['videojs.vast.js', specs],
       }, 
     },
     jasmine: {
-      src: 'vast.video.js',
+      src: 'videojs.vast.js',
       options: {
         specs: specs,
         helpers: helpers,
