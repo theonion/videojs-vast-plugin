@@ -1,4 +1,4 @@
-(function(vjs) {
+(function(vjs, vast) {
 "use strict";
   var
   extend = function(obj) {
@@ -28,7 +28,7 @@
     }
 
     // If we don't have a VAST url, just bail out.
-    if(options.url === undefined) {
+    if(settings.url === undefined) {
       player.trigger('adtimeout');
       return;
     }
@@ -47,7 +47,7 @@
       //   }
       // });
 
-      DMVAST.client.get(options.url, function(response) {
+      vast.client.get(settings.url, function(response) {
         if (response) {
           for (var adIdx = 0; adIdx < response.ads.length; adIdx++) {
             var ad = response.ads[adIdx];
@@ -57,7 +57,7 @@
               
               if (linearCreative.mediaFiles.length) {
                 player.vast.sources = player.vast.createSourceObjects(linearCreative.mediaFiles);
-                player.vastTracker = new DMVAST.tracker(ad, linearCreative);
+                player.vastTracker = new vast.tracker(ad, linearCreative);
                 player.on('canplay', function() {this.vastTracker.load();});
                 player.on('timeupdate', function() {this.vastTracker.setProgress(this.currentTime());});
                 player.on('play', function() {this.vastTracker.setPaused(false);});
@@ -71,7 +71,7 @@
               break;
             } else {
               // Inform ad server we can't find suitable media file for this ad
-              DMVAST.util.track(ad.errorURLTemplates, {ERRORCODE: 403});
+              vast.util.track(ad.errorURLTemplates, {ERRORCODE: 403});
             }
           }
         }
@@ -93,7 +93,7 @@
       var adSources = player.vast.sources;
       player.src(adSources);
 
-      var clickthrough = DMVAST.util.resolveURLTemplates(
+      var clickthrough = vast.util.resolveURLTemplates(
         [player.vastTracker.clickThroughURLTemplate],
         {CONTENTPLAYHEAD: player.vastTracker.progressFormated()}
       )[0];
@@ -180,4 +180,4 @@
   };
 
   vjs.plugin('vast', vastPlugin);
-}(window.videojs));
+}(window.videojs, window.DMVAST));
