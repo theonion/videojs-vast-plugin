@@ -20,11 +20,9 @@ var desired = {
   browserName: 'iphone',
   version: '5.0',
   platform: 'Mac 10.6',
-  tags: ["examples"],
   name: "This is an example test",
   tags: [process.env.TRAVIS_NODE_VERSION, 'CI'],
-  'tunnel-identifier': process.env.TRAVIS_JOB_NUMBER,
-  
+  'tunnel-identifier': process.env.TRAVIS_JOB_NUMBER
 }
 
 browser.init(desired, function() {

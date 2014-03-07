@@ -34,6 +34,14 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.loadNpmTasks('grunt-contrib-jasmine');
 
+  grunt.registerTask('selenium', 'runs selenium test', function() {
+    grunt.task.requires('travis');
+    grunt.util.spawn({
+      cmd: 'node',
+      args: 'spec/sauce-wd.js'
+    });
+  });
+
   grunt.registerTask('default', ['jshint', 'jasmine', 'watch']);
-  grunt.registerTask('travis', ['jshint', 'jasmine']);
+  grunt.registerTask('travis', ['jshint', 'jasmine', 'selenium']);
 };
