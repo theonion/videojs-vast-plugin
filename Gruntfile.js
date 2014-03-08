@@ -27,21 +27,22 @@ module.exports = function(grunt) {
         files: ['*.js', 'spec/*.js'],
         tasks: ['jshint', 'jasmine']
       },
+    },
+    shell: {
+      selenium: {
+        options: {
+          stdout: true
+        },
+        command: "node spec/sauce-wd.js"
+      }
     }
   });
 
   grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.loadNpmTasks('grunt-contrib-jasmine');
-
-  grunt.registerTask('selenium', 'runs selenium test', function() {
-    grunt.task.requires('travis');
-    grunt.util.spawn({
-      cmd: 'node',
-      args: 'spec/sauce-wd.js'
-    });
-  });
+  grunt.loadNpmTasks('grunt-shell');
 
   grunt.registerTask('default', ['jshint', 'jasmine', 'watch']);
-  grunt.registerTask('travis', ['jshint', 'jasmine', 'selenium']);
+  grunt.registerTask('travis', ['jshint', 'jasmine', 'shell']);
 };
