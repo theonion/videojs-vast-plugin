@@ -34,20 +34,15 @@
     }
 
     player.on('contentupdate', function(){
-      // fetchVAST(options.url, function(ads){
-      //   if(ads !== undefined && ads.length > 0) {
-      //     console.log(player.vast)
-      //     player.vast.ad = ads[0];
-      //     player.trigger('adsready');
-      //   } else {
-      //     player.trigger('adtimeout');
-      //     player.one('preroll?', function(){
-      //       player.trigger('adtimeout');
-      //     });
-      //   }
-      // });
+      player.vast.getContent(settings.url);
+    });
 
-      vast.client.get(settings.url, function(response) {
+    player.on('readyforpreroll', function() {
+      player.vast.preroll();
+    });
+
+    player.vast.getContent = function(url) {
+      vast.client.get(url, function(response) {
         if (response) {
           for (var adIdx = 0; adIdx < response.ads.length; adIdx++) {
             var ad = response.ads[adIdx];
@@ -80,12 +75,10 @@
           // No pre-roll, start video
           player.trigger('adtimeout');
         }
-      });
+      });      
+    };
 
-
-    });
-
-    player.on('readyforpreroll', function() {
+    player.vast.preroll = function() {
       player.ads.startLinearAdMode();
 
       player.autoplay(true);
@@ -129,13 +122,13 @@
       };
 
       player.one("ended", player.vast.tearDown);
-    });
+    };
 
     player.vast.tearDown = function() {
-      player.vast.ad = undefined;
       player.vast.skipButton.parentNode.removeChild(player.vast.skipButton);
       player.vast.blocker.parentNode.removeChild(player.vast.blocker);
       player.off('timeupdate', player.vast.timeupdate);
+      player.off('ended', player.vast.tearDown);
       player.ads.endLinearAdMode();
     };
 

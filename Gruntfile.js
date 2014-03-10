@@ -16,7 +16,7 @@ module.exports = function(grunt) {
         specs: specs,
         helpers: helpers,
         vendor: [
-          "http://vjs.zencdn.net/4.0/video.js",
+          "http://vjs.zencdn.net/4.4.3/video.js",
           "videojs-contrib-ads/video.ads.js",
           "vast-client.js"
         ]

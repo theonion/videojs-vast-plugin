@@ -65,7 +65,7 @@
       spyOn(this.p.vast, "createSourceObjects");
       this.p.ads = undefined;
       this.p.vast({url:"i wanna go VAST!"});
-      expect(console.log).toHaveBeenCalled();
+      expect(console.log).toHaveBeenCalledWith(jasmine.any(String));
       expect(this.p.vast.createSourceObjects).not.toHaveBeenCalled();
     });
 
@@ -153,6 +153,113 @@
       });
 
     });
+    
+    describe("tearDown", function() {
+
+      it("should end the linear ad", function() {
+        spyOn(player.ads, "endLinearAdMode");
+        spyOn(player, "off");
+
+        // TODO: fix this
+        player.vast.skipButton = document.createElement("div");
+        player.el().appendChild(player.vast.skipButton);
+        player.vast.blocker = document.createElement("a");
+        player.el().insertBefore(player.vast.blocker, player.controlBar.el());
+
+        player.vast.tearDown();
+        expect(player.off).toHaveBeenCalledWith("ended", jasmine.any(Function));
+        expect(player.ads.endLinearAdMode).toHaveBeenCalled();
+      });
+    });
+
+    describe("preroll", function() {
+
+      beforeEach(function() {
+        player.vastTracker = {
+          clickThroughURLTemplate: "a whole new page",
+          clickTrackingURLTemplate: "a new fantastic advertisement",
+          trackURLs: function(){},
+          progressFormated: function(){}
+        };
+        player.vast.sources = [];
+      });
+
+      it("should start the ad", function() {
+        spyOn(player.ads, "startLinearAdMode");
+        spyOn(player, "src");
+        player.vast.preroll();
+        expect(player.ads.startLinearAdMode).toHaveBeenCalled();
+        expect(player.src).toHaveBeenCalledWith(jasmine.any(Array));
+      });
+
+      it("should end the ad", function() {
+        spyOn(player, "one");
+        player.vast.preroll();
+        expect(player.one).toHaveBeenCalledWith("ended", jasmine.any(Function));
+      });
+
+    });
+
+    describe("getContent", function() {
+      describe("linear ads", function() {
+        beforeEach(function() {
+          spyOn(vast.client, "get")
+            .and.callFake(function(url, callback){
+              var fake_response = {
+                ads: [{
+                  creatives:[{
+                    type: "linear",
+                    mediaFiles: [{}]
+                  }]
+                }]
+              };
+              callback(fake_response);
+            });
+        });
+
+        it("should create a vast tracker", function() {
+          spyOn(vast, "tracker");
+          player.vast.getContent();
+          expect(vast.tracker).toHaveBeenCalled();
+          expect(player.vastTracker).toBeDefined();
+        });
+
+        it("should trigger the 'adsready' event", function() {
+          spyOn(player, "trigger");
+          player.vast.getContent();
+          expect(player.trigger).toHaveBeenCalledWith("adsready");
+        });
+      });
+
+      describe("non-linear ads", function() {
+        beforeEach(function() {
+          spyOn(vast.client, "get")
+            .and.callFake(function(url, callback){
+              var fake_response = {
+                ads: [{
+                  creatives:[{
+                    type: "non-linear",
+                    mediaFiles: [{}]
+                  }],
+                  errorURLTemplates: "error!"
+                }]
+              };
+              callback(fake_response);
+            });
+        });
+        it("should do nothing with non-linear ads, and report the error", function() {
+          spyOn(vast.util, "track");
+          spyOn(player, "trigger");
+          player.vast.getContent();
+          expect(vast.util.track).toHaveBeenCalledWith(
+            jasmine.any(String), jasmine.any(Object)
+          );
+          expect(player.trigger).toHaveBeenCalledWith("adtimeout");
+        });
+      });
+
+    });
+
   });
 
 })(window, videojs, DMVAST);
