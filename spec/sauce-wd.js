@@ -2,10 +2,10 @@ var webdriver = require('wd')
   , assert = require('assert');
 
 var browser = webdriver.remote(
-  "localhost"
-  , 4445
-  , process.env.SAUCE_USERNAME
-  , process.env.SAUCE_ACCESS_KEY
+  util.format(
+    "http://%s:%s@ondemand.saucelabs.com/wd/hub",
+    process.env.SAUCE_USERNAME,
+    process.env.SAUCE_ACCESS_KEY
 );
 
 browser.on('status', function(info){
@@ -20,9 +20,9 @@ var desired = {
   browserName: 'iphone',
   version: '5.0',
   platform: 'Mac 10.6',
-  name: "This is an example test",
+  name: "FINALLLYLYY",
   tags: [process.env.TRAVIS_NODE_VERSION.toString(), 'CI'],
-  'tunnel-identifier': process.env.TRAVIS_JOB_NUMBER
+  "tunnel-identifier": process.env.TRAVIS_JOB_NUMBER
 }
 
 browser.init(desired, function() {
