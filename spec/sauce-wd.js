@@ -21,7 +21,7 @@ var desired = {
   version: '5.0',
   platform: 'Mac 10.6',
   name: "This is an example test",
-  tags: [process.env.TRAVIS_NODE_VERSION, 'CI'],
+  tags: [process.env.TRAVIS_NODE_VERSION.toString(), 'CI'],
   'tunnel-identifier': process.env.TRAVIS_JOB_NUMBER
 }
 
