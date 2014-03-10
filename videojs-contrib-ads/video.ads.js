@@ -239,7 +239,8 @@ var
   removeNativePoster = function(player) {
     var tech = player.el().querySelector('.vjs-tech');
     if (tech) {
-      tech.poster = null;
+      // tech.poster = null;
+      tech.removeAttribute('poster');
     }
   },
 

@@ -4,9 +4,9 @@
   <meta charset="utf-8" />
   <title>Video.js VAST Example</title>
 
-  <link href="http://vjs.zencdn.net/4.4.2/video-js.css" rel="stylesheet">
-  <link href="../videojs-contrib-ads/video.ads.css" rel="stylesheet" type="text/css">
-  <link href="../vast.video.css" rel="stylesheet" type="text/css">
+  <link href="http://vjs.zencdn.net/4.4.3/video-js.css" rel="stylesheet">
+  <link href="videojs-contrib-ads/video.ads.css" rel="stylesheet" type="text/css">
+  <link href="videojs.vast.css" rel="stylesheet" type="text/css">
 
   <style type="text/css">
     #vid1 {
@@ -14,17 +14,12 @@
     }
   </style>
 
-  <!--[if IE]>
-    <script src="https://getfirebug.com/releases/lite/1.4/firebug-lite.js"></script>
-  <!--<![endif]-->
+  <script src="http://vjs.zencdn.net/4.4.3/video.js"></script>
+  <script src="videojs-contrib-ads/video.ads.js"></script>
 
-  <!-- GENERATED LIST OF SOURCE FILES -->
-  <script src="http://vjs.zencdn.net/4.0/video.js"></script>
-  <script src="../videojs-contrib-ads/video.ads.js"></script>
-
-  <script src="../responsive.video.js"></script>
-  <script src="../vast.js"></script>
-  <script src="../vast.video.js"></script>
+  <script src="responsive.video.js"></script>
+  <script src="vast-client.js"></script>
+  <script src="videojs.vast.js"></script>
 </head>
 <body>
   <p style="background-color:#eee; border: 1px solid #777; padding: 10px; font-size: .8em; line-height: 1.5em; font-family: Verdana, sans-serif;">This page shows you how to create, register and initialize a Video.js plugin.</p>
@@ -39,15 +34,13 @@
   </video>
 
   <script>
-    (function() {
-      var vid1 = videojs('vid1');
+    var vid1 = videojs('vid1');
 
-      vid1.responsive();
-      vid1.ads();
-      vid1.vast({
-        url: 'http://videoads.theonion.com/vast/176.xml'
-      });
-    })();
+    vid1.responsive();
+    vid1.ads();
+    vid1.vast({
+      url: 'http://videoads.theonion.com/vast/176.xml'
+    });
   </script>
 
 </body>
