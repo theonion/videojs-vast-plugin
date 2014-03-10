@@ -1,11 +1,13 @@
 var webdriver = require('wd')
-  , assert = require('assert');
+  , assert = require('assert')
+  , util = require('util');
 
 var browser = webdriver.remote(
   util.format(
-    "http://%s:%s@ondemand.saucelabs.com/wd/hub",
+    "http://%s:%s@ondemand.saucelabs.com:80/wd/hub",
     process.env.SAUCE_USERNAME,
     process.env.SAUCE_ACCESS_KEY
+  )
 );
 
 browser.on('status', function(info){
