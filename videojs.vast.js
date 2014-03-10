@@ -127,6 +127,8 @@
           return false;
         }
       };
+
+      player.one("ended", player.vast.tearDown);
     });
 
     player.vast.tearDown = function() {

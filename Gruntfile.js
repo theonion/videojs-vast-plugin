@@ -31,7 +31,8 @@ module.exports = function(grunt) {
     shell: {
       selenium: {
         options: {
-          stdout: true
+          stdout: true,
+          failOnError: true
         },
         command: "node spec/sauce-wd.js"
       }
