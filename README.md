@@ -1,4 +1,4 @@
-videojs-vast-plugin
+videojs-vast-plugin [![Build Status](https://travis-ci.org/theonion/videojs-vast-plugin.png?branch=master)](https://travis-ci.org/theonion/videojs-vast-plugin)
 ===================
 
 A this plugin reads a [VAST file](https://www.iab.net/vast), grabs the first video it can, and plays it as pre-roll advertisement before your video. It will also click through to whatever url the advertiser designates, track any clicks, and fire all of the correct pixel trackers at the right times.
