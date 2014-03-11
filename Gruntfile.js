@@ -45,5 +45,5 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-shell');
 
   grunt.registerTask('default', ['jshint', 'jasmine', 'watch']);
-  grunt.registerTask('travis', ['jshint', 'jasmine', 'shell']);
+  grunt.registerTask('travis', ['jshint', 'jasmine']);
 };
