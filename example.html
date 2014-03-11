@@ -17,7 +17,6 @@
   <script src="http://vjs.zencdn.net/4.4.3/video.js"></script>
   <script src="videojs-contrib-ads/video.ads.js"></script>
 
-  <script src="responsive.video.js"></script>
   <script src="vast-client.js"></script>
   <script src="videojs.vast.js"></script>
 </head>
@@ -36,7 +35,6 @@
   <script>
     var vid1 = videojs('vid1');
 
-    vid1.responsive();
     vid1.ads();
     vid1.vast({
       url: 'http://videoads.theonion.com/vast/176.xml'
