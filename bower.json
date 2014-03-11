@@ -24,7 +24,7 @@
     "tests",
     "spec",
     "Gruntfile.js",
-    "videojs-contrib-ads"
+    "lib"
   ],
   "dependencies": {
     "videojs": "4.4.3",
