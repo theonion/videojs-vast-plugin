@@ -9,12 +9,14 @@ Include the plugin and it's dependencies:
 ```
 <script src="http://vjs.zencdn.net/4.4.3/video.js"></script>
 <script src="vast-client.js"></script>
+<script src="video.ads.js"></script>
 <script src="videojs.persistvolume.js"></script>
 ```
 
-Add "vast" to plugins object with one option, url.
+Add "ads" and "vast" to the plugins object, and pass a url:
 
     plugins: {
+        ads: {},
         vast: {
             url: 'http://url.to.your/vast/file.xml'
         }
