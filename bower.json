@@ -21,7 +21,10 @@
     "node_modules",
     "bower_components",
     "test",
-    "tests"
+    "tests",
+    "spec",
+    "Gruntfile.js",
+    "videojs-contrib-ads"
   ],
   "dependencies": {
     "videojs": "4.4.3",
