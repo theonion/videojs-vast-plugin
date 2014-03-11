@@ -27,16 +27,16 @@ module.exports = function(grunt) {
         files: ['*.js', 'spec/*.js'],
         tasks: ['jshint', 'jasmine']
       },
-    },
-    shell: {
-      selenium: {
-        options: {
-          stdout: true,
-          failOnError: true
-        },
-        command: "node spec/sauce-wd.js"
-      }
     }
+    // shell: {
+    //   selenium: {
+    //     options: {
+    //       stdout: true,
+    //       failOnError: true
+    //     },
+    //     command: "node spec/sauce-wd.js"
+    //   }
+    // }
   });
 
   grunt.loadNpmTasks('grunt-contrib-jshint');
