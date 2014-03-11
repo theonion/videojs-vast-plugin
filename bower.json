@@ -25,6 +25,7 @@
   ],
   "dependencies": {
     "videojs": "4.4.3",
-    "vast-client-js": "1.1.2"
+    "vast-client-js": "1.1.2",
+    "videojs-contrib-ads": "git@github.com:videojs/videojs-contrib-ads.git#f8fa6b22148142cb7e96963034126891c4797b96"
   }
 }
