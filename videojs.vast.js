@@ -55,8 +55,8 @@
                 player.vastTracker = new vast.tracker(ad, linearCreative);
                 player.on('canplay', function() {this.vastTracker.load();});
                 player.on('timeupdate', function() {
-                  if (isNaN(linearCreative.duration)) {
-                    linearCreative.duration = this.duration();
+                  if (isNaN(this.vastTracker.assetDuration)) {
+                    this.vastTracker.assetDuration = this.duration();
                   }
                   this.vastTracker.setProgress(this.currentTime());
                 });
