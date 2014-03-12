@@ -54,7 +54,12 @@
                 player.vast.sources = player.vast.createSourceObjects(linearCreative.mediaFiles);
                 player.vastTracker = new vast.tracker(ad, linearCreative);
                 player.on('canplay', function() {this.vastTracker.load();});
-                player.on('timeupdate', function() {this.vastTracker.setProgress(this.currentTime());});
+                player.on('timeupdate', function() {
+                  if (isNaN(linearCreative.duration)) {
+                    linearCreative.duration = this.duration();
+                  }
+                  this.vastTracker.setProgress(this.currentTime());
+                });
                 player.on('play', function() {this.vastTracker.setPaused(false);});
                 player.on('pause', function() {this.vastTracker.setPaused(true);});
                 break;
