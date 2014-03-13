@@ -2,6 +2,75 @@
 <script src="vast-client.js"></script>
 <script src="video.ads.js"></script>
 <script src="videojs.vast.js"></script>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
 <script>
+var waitingInterval;
 
+$(".vast-form").submit(function(e){
+    e.preventDefault();
+    var url = $('.vast-input').val();
+    $.get(url, function() {
+        $(".vast-input").css("color", "#333");
+        clearInterval(waitingInterval);
+        $(".waiting").remove();
+        playVideo(url);
+    })
+    .fail(function() {
+        $(".vast-input").css("color", "red");
+    });
+});
+var foo; //debug
+var not_the_first_time = false;
+function playVideo(url) {
+    if (not_the_first_time) {
+        videojs('vast-video').dispose();
+        var video_tag = $('<video>').attr('id', 'vast-video').addClass('video-js vjs-default-skin');
+        $('#vast-video-container').prepend(video_tag);
+    } else {
+        not_the_first_time = true;
+    }
+    var video = videojs('vast-video', {
+        preload: 'auto',
+        width: 600,
+        height: 400
+    });
+    video.controls(true);
+    video.src([
+        {
+            src: "http://video-js.zencoder.com/oceans-clip.mp4",
+            type: "video/mp4"   
+        },
+        {
+            src: "http://video-js.zencoder.com/oceans-clip.webm",
+            type: "video/webm"
+        },
+        {
+            src: "http://video-js.zencoder.com/oceans-clip.ogv",
+            type: "video/ogg"
+        }
+    ])
+    video.ads();
+    video.vast({
+        url: url
+    });
+    video.play();
+    foo = video; //debug
+}
+
+function waiting(dots) {
+    $("<span class='waiting'/>").insertBefore("#vast-video");
+    var count = 0;
+    waitingInterval = setInterval(function(){
+      if (count < dots) { count++; }
+      else { count = 0; }
+      var waiting = document.getElementsByClassName('waiting')[0];
+      waiting.innerHTML = "waiting for input." + new Array(count % 4).join('.');
+    }, 500);
+}
+
+function main() {
+    waiting(3);
+}
+
+main();
 </script>

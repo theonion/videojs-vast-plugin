@@ -146,3 +146,24 @@ code {
   margin: 0 auto;
   padding: 0 1rem;
 }
+
+button.play-vid {
+  color: white;
+  background: #000;
+  border: 0;
+  padding-top: 3px;
+  margin-left: 7px;
+}
+
+input.vast-input {
+  width: 79%;
+  margin-bottom: 20px;
+}
+
+span.waiting {
+  position: absolute;
+  color: white;
+  z-index: 1;
+  margin-top: 350px;
+  left: 27%;
+}
