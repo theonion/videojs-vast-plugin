@@ -1,5 +1,5 @@
 markdown: redcarpet
 pygments: true
 
-title_tag_text: Solo, a Jekyll Theme
-h1_tag_text: Solo
+title_tag_text: A VideoJS plugin for VAST
+h1_tag_text: VideoJS VAST
