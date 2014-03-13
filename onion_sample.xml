@@ -1,0 +1,44 @@
+<VAST xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.0" xsi:noNamespaceSchemaLocation="vast.xsd">
+    
+    <Ad id="176" >
+        
+        <InLine>
+            <AdSystem version="2.0">ONION</AdSystem>
+            <AdTitle>In-Stream Video</AdTitle>
+            <Description>Grand Budapest Hotel_Fridays</Description>
+	       
+            <Impression><![CDATA[http://reporting.theonion.com/videoadtracker/track.gif?videoAd=176&event=impression]]></Impression>
+            <Creatives>
+                <Creative sequence="1" AdID="">
+                    <Linear>
+                        <Duration>00:00:</Duration>
+                        <TrackingEvents>
+                            <Tracking event="start"><![CDATA[http://reporting.theonion.com/videoadtracker/track.gif?videoAd=176&event=start]]></Tracking>
+                        
+                            <Tracking event="start"><![CDATA[http://ad.doubleclick.net/ddm/trackimp/N2998.Onion/B7912634.16;dc_trk_aid=279982600;dc_trk_cid=57339121;ord=[timestamp]]]></Tracking>
+                        
+                        
+                        
+                        
+                        
+                        </TrackingEvents>
+                        
+                        <VideoClicks>
+                            <ClickThrough><![CDATA[http://ad.doubleclick.net/ddm/trackclk/N2998.Onion/B7912634.16;dc_trk_aid=279982600;dc_trk_cid=57339121;ord=[timestamp]?http://www.foxsearchlight.com/thegrandbudapesthotel]]></ClickThrough>
+                        </VideoClicks>
+                        
+                        <MediaFiles>
+                        
+                            <MediaFile id="1" delivery="progressive" type="video/mp4"><![CDATA[http://v.theonion.com/onionmedia/videos/videometa/1521/zen_mp4.mp4]]></MediaFile>
+                        
+                            <MediaFile id="1" delivery="progressive" type="video/webm"><![CDATA[http://v.theonion.com/onionmedia/videos/videometa/1521/zen_webm.webm]]></MediaFile>
+                        
+                        </MediaFiles>
+                    </Linear>
+                </Creative>
+            </Creatives>
+      </InLine>
+      
+    </Ad>
+    
+</VAST>
