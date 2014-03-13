@@ -10,7 +10,7 @@ Include the plugin and it's dependencies:
 <script src="http://vjs.zencdn.net/4.4.3/video.js"></script>
 <script src="vast-client.js"></script>
 <script src="video.ads.js"></script>
-<script src="videojs.persistvolume.js"></script>
+<script src="videojs.vast.js"></script>
 ```
 
 Add "ads" and "vast" to the plugins object, and pass a url:
@@ -21,3 +21,7 @@ Add "ads" and "vast" to the plugins object, and pass a url:
             url: 'http://url.to.your/vast/file.xml'
         }
     }
+
+And when you play that video, a pre-roll ad should play beforehand.
+
+Check out the [demo](https://github.com/theonion/videojs-vast-plugin/blob/master/example.html) for a more detailed example
