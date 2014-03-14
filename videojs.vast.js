@@ -51,7 +51,14 @@
               if (linearCreative.type !== "linear") continue;
               
               if (linearCreative.mediaFiles.length) {
+
                 player.vast.sources = player.vast.createSourceObjects(linearCreative.mediaFiles);
+
+                if (!player.vast.sources.length) {
+                  player.trigger('adtimeout');
+                  return;
+                }
+
                 player.vastTracker = new vast.tracker(ad, linearCreative);
                 player.on('canplay', function() {this.vastTracker.load();});
                 player.on('timeupdate', function() {
@@ -62,6 +69,7 @@
                 });
                 player.on('play', function() {this.vastTracker.setPaused(false);});
                 player.on('pause', function() {this.vastTracker.setPaused(true);});
+
                 break;
               }
             }

@@ -201,6 +201,24 @@
     });
 
     describe("getContent", function() {
+      it("should bail out if there aren't playable media files", function() {
+        spyOn(vast.client, "get").and.callFake(function(url, callback){
+            var fake_response = {
+              ads: [{
+                creatives:[{
+                  type: "linear",
+                  mediaFiles: [{fileURL:"0", mimeType:"n0t-r34l"}]
+                }]
+              }]
+            };
+            callback(fake_response);
+          });
+      
+        spyOn(player, "trigger");
+        player.vast.getContent("some url");
+        expect(player.trigger).toHaveBeenCalledWith("adtimeout");
+      });
+
       describe("linear ads", function() {
         beforeEach(function() {
           spyOn(vast.client, "get")
@@ -209,7 +227,7 @@
                 ads: [{
                   creatives:[{
                     type: "linear",
-                    mediaFiles: [{}]
+                    mediaFiles: [{fileURL:"hunt", mimeType:"video/webm"}]
                   }]
                 }]
               };
@@ -219,7 +237,7 @@
 
         it("should create a vast tracker", function() {
           spyOn(vast, "tracker");
-          player.vast.getContent();
+          player.vast.getContent("some url");
           expect(vast.tracker).toHaveBeenCalled();
           expect(player.vastTracker).toBeDefined();
         });
@@ -230,19 +248,19 @@
           });
           spyOn(player, "duration").and.returnValue(11);
           spyOn(player, "currentTime").and.returnValue(11);
-          player.vast.getContent();
+          player.vast.getContent("some url");
 
           /* 
             Forcing some implementation here, but the
             duration fail-safe is a hack anyway.
           */
           player.trigger("timeupdate");
-          expect(player.vastTracker.assetDuration).toBeDefined();
+          expect(player.vastTracker.assetDuration).toBe(11);
         });
 
         it("should trigger the 'adsready' event", function() {
           spyOn(player, "trigger");
-          player.vast.getContent();
+          player.vast.getContent("some url");
           expect(player.trigger).toHaveBeenCalledWith("adsready");
         });
       });
@@ -266,7 +284,7 @@
         it("should do nothing with non-linear ads, and report the error", function() {
           spyOn(vast.util, "track");
           spyOn(player, "trigger");
-          player.vast.getContent();
+          player.vast.getContent("some url");
           expect(vast.util.track).toHaveBeenCalledWith(
             jasmine.any(String), jasmine.any(Object)
           );
