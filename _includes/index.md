@@ -1,6 +1,5 @@
 
-
-This plugin reads a [VAST file](https://www.iab.net/vast), grabs the first video it can, and plays it as pre-roll advertisement before your video.
+This plugin reads a [VAST file](https://www.iab.net/vast), grabs the first video it can, and plays it as a pre-roll advertisement before your video.
 
 It will also click through to whatever url the advertiser designates, track any clicks, and fire all of the correct pixel trackers at the right times.
 
@@ -36,7 +35,7 @@ Add "ads" and "vast" to the plugins object, and pass a url:
 
 And when you play that video, a pre-roll ad should play beforehand.
 
-Check out the [demo](https://github.com/theonion/videojs-vast-plugin/blob/master/example.html) for a more detailed example.
+Check out [example.html](https://github.com/theonion/videojs-vast-plugin/blob/master/example.html) for a more detailed demo.
 
 
 <a href="https://github.com/theonion/videojs-vast-plugin"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"></a>
