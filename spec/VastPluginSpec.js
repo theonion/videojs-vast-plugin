@@ -224,6 +224,22 @@
           expect(player.vastTracker).toBeDefined();
         });
 
+        it("should guarantee that assetDuration is defined", function() {
+          spyOn(vast, "tracker").and.returnValue({
+            setProgress: function(){}
+          });
+          spyOn(player, "duration").and.returnValue(11);
+          spyOn(player, "currentTime").and.returnValue(11);
+          player.vast.getContent();
+
+          /* 
+            Forcing some implementation here, but the
+            duration fail-safe is a hack anyway.
+          */
+          player.trigger("timeupdate");
+          expect(player.vastTracker.assetDuration).toBeDefined();
+        });
+
         it("should trigger the 'adsready' event", function() {
           spyOn(player, "trigger");
           player.vast.getContent();

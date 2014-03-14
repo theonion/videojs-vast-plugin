@@ -93,7 +93,10 @@
 
       var clickthrough = vast.util.resolveURLTemplates(
         [player.vastTracker.clickThroughURLTemplate],
-        {CONTENTPLAYHEAD: player.vastTracker.progressFormated()}
+        {
+          CACHEBUSTER: Math.round(Math.random() * 1.0e+10),
+          CONTENTPLAYHEAD: player.vastTracker.progressFormated()
+        }
       )[0];
       var blocker = document.createElement("a");
       blocker.className = "vast-blocker";
