@@ -99,16 +99,19 @@
       var adSources = player.vast.sources;
       player.src(adSources);
 
-      var clickthrough = vast.util.resolveURLTemplates(
-        [player.vastTracker.clickThroughURLTemplate],
-        {
-          CACHEBUSTER: Math.round(Math.random() * 1.0e+10),
-          CONTENTPLAYHEAD: player.vastTracker.progressFormated()
-        }
-      )[0];
+      var clickthrough;
+      if (player.vastTracker.clickThroughURLTemplate) {
+        clickthrough = vast.util.resolveURLTemplates(
+          [player.vastTracker.clickThroughURLTemplate],
+          {
+            CACHEBUSTER: Math.round(Math.random() * 1.0e+10),
+            CONTENTPLAYHEAD: player.vastTracker.progressFormated()
+          }
+        )[0];
+      }
       var blocker = document.createElement("a");
       blocker.className = "vast-blocker";
-      blocker.href = clickthrough;
+      blocker.href = clickthrough || "#";
       blocker.target = "_blank";
       blocker.onclick = function() {
         var clicktrackers = player.vastTracker.clickTrackingURLTemplate;
