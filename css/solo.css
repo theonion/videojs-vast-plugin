@@ -161,9 +161,10 @@ input.vast-input {
 }
 
 span.waiting {
-  position: absolute;
+  position: relative;
   color: white;
   z-index: 1;
   margin-top: 350px;
-  left: 27%;
+  left: 5%;
+  float: left;
 }
