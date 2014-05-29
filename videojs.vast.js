@@ -130,7 +130,9 @@
       player.on("timeupdate", player.vast.timeupdate);
 
       skipButton.onclick = function(e) {
+        
         if((' ' + player.vast.skipButton.className + ' ').indexOf(' enabled ') >= 0) {
+          player.ads.skipAdMode();
           player.vast.tearDown();
         }
         if(Event.prototype.stopPropagation !== undefined) {
