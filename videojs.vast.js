@@ -117,7 +117,7 @@
       blocker.onclick = function() {
         var clicktrackers = player.vastTracker.clickTrackingURLTemplate;
         if (clicktrackers) {
-          player.vastTracker.trackURLs(clicktrackers);
+          player.vastTracker.trackURLs([clicktrackers]);
         }
       };
       player.vast.blocker = blocker;
