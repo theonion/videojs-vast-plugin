@@ -34,6 +34,7 @@
       return;
     }
 
+    // videojs-ads triggers this when src changes
     player.on('contentupdate', function(){
       player.vast.getContent(settings.url);
     });
