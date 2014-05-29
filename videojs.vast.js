@@ -119,6 +119,7 @@
         if (clicktrackers) {
           player.vastTracker.trackURLs([clicktrackers]);
         }
+        player.trigger("adclick");
       };
       player.vast.blocker = blocker;
       player.el().insertBefore(blocker, player.controlBar.el());
