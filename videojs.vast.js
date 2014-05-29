@@ -48,31 +48,71 @@
         if (response) {
           for (var adIdx = 0; adIdx < response.ads.length; adIdx++) {
             var ad = response.ads[adIdx];
+            player.vast.companion = undefined;
             for (var creaIdx = 0; creaIdx < ad.creatives.length; creaIdx++) {
-              var linearCreative = ad.creatives[creaIdx];
-              if (linearCreative.type !== "linear") continue;
-              
-              if (linearCreative.mediaFiles.length) {
+              var creative = ad.creatives[creaIdx], foundCreative = false, foundCompanion = false;
+              if (creative.type === "linear" && !foundCreative) {
 
-                player.vast.sources = player.vast.createSourceObjects(linearCreative.mediaFiles);
+                if (creative.mediaFiles.length) {
 
-                if (!player.vast.sources.length) {
-                  player.trigger('adtimeout');
-                  return;
+                  player.vast.sources = player.vast.createSourceObjects(creative.mediaFiles);
+
+                  if (!player.vast.sources.length) {
+                    player.trigger('adtimeout');
+                    return;
+                  }
+
+                  player.vastTracker = new vast.tracker(ad, creative);
+
+                  var errorOccurred = false,
+                      canplayFn = function() {
+                        this.vastTracker.load();
+                      },
+                      timeupdateFn = function() {
+                        if (isNaN(this.vastTracker.assetDuration)) {
+                          this.vastTracker.assetDuration = this.duration();
+                        }
+                        this.vastTracker.setProgress(this.currentTime());
+                      },
+                      playFn = function() {
+                        this.vastTracker.setPaused(false);
+                      },
+                      pauseFn = function() {
+                        this.vastTracker.setPaused(true);
+                      },
+                      errorFn = function() {
+                        // Inform ad server we couldn't play the media file for this ad
+                        vast.util.track(ad.errorURLTemplates, {ERRORCODE: 405});
+                        errorOccurred = true;
+                        player.trigger('ended');
+                      };
+
+                  player.on('canplay', canplayFn);
+                  player.on('timeupdate', timeupdateFn);
+                  player.on('play', playFn);
+                  player.on('pause', pauseFn);
+                  player.on('error', errorFn);
+
+                  player.one('ended', function() {
+                    player.off('canplay', canplayFn);
+                    player.off('timeupdate', timeupdateFn);
+                    player.off('play', playFn);
+                    player.off('pause', pauseFn);
+                    player.off('error', errorFn);
+                    if (!errorOccurred) {
+                      this.vastTracker.complete();
+                    }
+                  });
+
+                  foundCreative = true;
                 }
 
-                player.vastTracker = new vast.tracker(ad, linearCreative);
-                player.on('canplay', function() {this.vastTracker.load();});
-                player.on('timeupdate', function() {
-                  if (isNaN(this.vastTracker.assetDuration)) {
-                    this.vastTracker.assetDuration = this.duration();
-                  }
-                  this.vastTracker.setProgress(this.currentTime());
-                });
-                player.on('play', function() {this.vastTracker.setPaused(false);});
-                player.on('pause', function() {this.vastTracker.setPaused(true);});
+              } else if (creative.type === "companion" && !foundCompanion) {
 
-                break;
+                player.vast.companion = creative;
+
+                foundCompanion = true;
+
               }
             }
 
