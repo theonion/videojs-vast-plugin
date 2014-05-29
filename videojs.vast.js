@@ -15,6 +15,7 @@
   },
 
   defaults = {
+    showSkipButton: true,
     skip: 5,
   },
 
@@ -124,6 +125,9 @@
 
       var skipButton = document.createElement("div");
       skipButton.className = "vast-skip-button";
+      if (settings.showSkipButton === false) {
+        skipButton.style.display = "none";
+      }
       player.vast.skipButton = skipButton;
       player.el().appendChild(skipButton);
 
