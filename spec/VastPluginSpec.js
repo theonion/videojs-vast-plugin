@@ -84,21 +84,27 @@
 
     describe("createSourceObjects", function() {
 
-      it("should return objects with 'src' and 'type' properties", function() {
+      it("should return objects with 'src', 'type', 'width', and 'height' properties", function() {
         var media_files = [
           {
             fileURL: "TRL",
-            mimeType: "video/webm"
+            mimeType: "video/webm",
+            width: 640,
+            height: 360
           },
           {
             fileURL: "BuddhaForRill",
-            mimeType: "video/mp4"
+            mimeType: "video/mp4",
+            width: 0,
+            height: 0
           }
         ];
         var sources = player.vast.createSourceObjects(media_files);
         for (var s in sources) {
           expect(sources[s].src).toBeDefined();
           expect(sources[s].type).toBeDefined();
+          expect(sources[s].width).toBeDefined();
+          expect(sources[s].height).toBeDefined();
         }
       });
 
@@ -106,50 +112,68 @@
         var media_files = [
           {
             fileURL: "TRL",
-            mimeType: "video/flv"
+            mimeType: "video/flv",
+            width: 640,
+            height: 360
           },
           {
             fileURL: "So Trill",
-            mimeType: "video/x-flv"
+            mimeType: "video/x-flv",
+            width: 512,
+            height: 288
           },
           {
             fileURL: "Skrill, WHERES MY SKRILL",
-            mimeType: "video/mpeg"
+            mimeType: "video/mpeg",
+            width: 0,
+            height: 0
           },
           {
             fileURL: "Jack and Jill",
-            mimeType: "video/ogg"
+            mimeType: "video/ogg",
+            width: 1280,
+            height: 720
           },
           {
             fileURL: "-- Code Raps -- ",
-            mimeType: "hls/playlist.m3u8"
+            mimeType: "hls/playlist.m3u8",
+            width: 640,
+            height: 480
           },
           {
             fileURL: "I'm tapped",
-            mimeType: "video/avi"
+            mimeType: "video/avi",
+            width: 512,
+            height: 384
           },
           {
             fileURL: "BuddhaForRill",
-            mimeType: "video/mp4"
+            mimeType: "video/mp4",
+            width: 1920,
+            height: 1080
           }
         ];
         var sources = player.vast.createSourceObjects(media_files);
         expect(sources.length).toBe(1);
       });
 
-      it("returns sources with unique formats", function() {
+      it("can return sources with duplicate formats", function() {
         var media_files = [
           {
             fileURL: "TRL",
-            mimeType: "video/mp4"
+            mimeType: "video/mp4",
+            width: 640,
+            height: 360
           },
           {
             fileURL: "BuddhaForRill",
-            mimeType: "video/mp4"
+            mimeType: "video/mp4",
+            width: 853,
+            height: 480
           }
         ];
         var sources = player.vast.createSourceObjects(media_files);
-        expect(sources.length).toBe(1);
+        expect(sources.length).toBe(2);
       });
 
     });

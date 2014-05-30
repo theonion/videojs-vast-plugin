@@ -210,12 +210,11 @@
       }
     };
     player.vast.createSourceObjects = function(media_files) {
-      var sourcesByFormat = {};
+      var sourcesByFormat = {}, format, i;
       var vidFormats = ['video/mp4', 'video/webm', 'video/ogv'];
       // get a list of files with unique formats
-      for (var i = 0; i < media_files.length; i++) {
-        var file_url = media_files[i].fileURL;
-        var format = media_files[i].mimeType;
+      for (i = 0; i < media_files.length; i++) {
+        format = media_files[i].mimeType;
 
         if (vidFormats.indexOf(format) >= 0) {
           if(sourcesByFormat[format] === undefined) {
@@ -223,7 +222,7 @@
           }
           sourcesByFormat[format].push({
             type: format,
-            src: file_url,
+            src: media_files[i].fileURL,
             width: media_files[i].width,
             height: media_files[i].height
           });
@@ -233,9 +232,9 @@
       // Create sources in preferred format order
       var sources = [];
       for (var j=0; j < vidFormats.length; j++) {
-        var format = vidFormats[j];
+        format = vidFormats[j];
         if (sourcesByFormat[format] !== undefined) {
-          for (var i = 0; i < sourcesByFormat[format].length; i++) {
+          for (i = 0; i < sourcesByFormat[format].length; i++) {
             sources.push(sourcesByFormat[format][i]);
           }
         }
