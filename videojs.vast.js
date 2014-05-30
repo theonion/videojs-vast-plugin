@@ -15,8 +15,7 @@
   },
 
   defaults = {
-    showSkipButton: true,
-    skip: 5,
+    skip: 5 // negative disables
   },
 
   vastPlugin = function(options) {
@@ -167,7 +166,7 @@
 
       var skipButton = document.createElement("div");
       skipButton.className = "vast-skip-button";
-      if (settings.showSkipButton === false) {
+      if (settings.skip < 0) {
         skipButton.style.display = "none";
       }
       player.vast.skipButton = skipButton;
