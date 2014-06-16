@@ -24,9 +24,15 @@ Add "ads" and "vast" to the plugins object, and pass a url:
 
 And when you play that video, a pre-roll ad should play beforehand.
 
+If you click on the ad, an `adclick` event will trigger.
+
 Check out the [demo](https://github.com/theonion/videojs-vast-plugin/blob/master/example.html) for a more detailed example.
 
 This plugin is technically an integration for video.js's [ads plugin](https://github.com/videojs/videojs-contrib-ads). For more information on the various states in the preroll process, please refer to the  [videojs-contrib-ads documentation](https://github.com/videojs/videojs-contrib-ads#state-diagram).
+
+### Options
+- url: a URL to the xml file.
+- skip: how long until the user can skip the ad. Defaults to 5, and a negative number will disable it.
 
 ### Credit
 
