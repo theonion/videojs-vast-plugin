@@ -134,7 +134,10 @@
 
     player.vast.preroll = function() {
       player.ads.startLinearAdMode();
-
+      player.vast.showControls = player.controls();
+      if (player.vast.showControls ) {
+        player.controls(false);
+      }
       player.autoplay(true);
       // play your linear ad content
       var adSources = player.vast.sources;
@@ -155,6 +158,10 @@
       blocker.href = clickthrough || "#";
       blocker.target = "_blank";
       blocker.onclick = function() {
+        if (player.paused()) {
+          player.play();
+          return false;
+        }
         var clicktrackers = player.vastTracker.clickTrackingURLTemplate;
         if (clicktrackers) {
           player.vastTracker.trackURLs([clicktrackers]);
@@ -194,6 +201,9 @@
       player.off('timeupdate', player.vast.timeupdate);
       player.off('ended', player.vast.tearDown);
       player.ads.endLinearAdMode();
+      if (player.vast.showControls ) {
+        player.controls(true);
+      }
     };
 
     player.vast.timeupdate = function(e) {
