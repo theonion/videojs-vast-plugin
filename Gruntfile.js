@@ -26,7 +26,7 @@ var gruntConfig = {
       helpers: helpers,
       vendor: [
         "http://vjs.zencdn.net/4.4.3/video.js",
-        "lib/videojs-contrib-ads/video.ads.js",
+        "lib/videojs-contrib-ads/videojs.ads.js",
         "lib/vast-client.js"
       ]
     }
