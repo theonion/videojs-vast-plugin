@@ -77,6 +77,16 @@
       expect(this.p.trigger).toHaveBeenCalledWith("adtimeout");
       expect(this.p.vast.createSourceObjects).not.toHaveBeenCalled();
     });
+
+    it("should request an ad if a source is already loaded", function() {
+      this.p.currentSrc = function() {
+        return "video.mp4";
+      };
+      spyOn(vast.client, "get");
+      this.p.ads();
+      this.p.vast({url:"i wanna go VAST!"});
+      expect(vast.client.get).toHaveBeenCalledWith("i wanna go VAST!", jasmine.any(Function));
+    });
   });
 
 

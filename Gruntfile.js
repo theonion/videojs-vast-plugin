@@ -26,7 +26,7 @@ var gruntConfig = {
       helpers: helpers,
       vendor: [
         "http://vjs.zencdn.net/4.4.3/video.js",
-        "lib/videojs-contrib-ads/video.ads.js",
+        "bower_components/videojs-contrib-ads/src/videojs.ads.js",
         "lib/vast-client.js"
       ]
     }
@@ -42,6 +42,13 @@ var gruntConfig = {
   },
   concurrent: {
     "test-sauce": []
+  },
+  connect: {
+    server: {
+      options: {
+        keepalive: true
+      }
+    }
   },
   watch: {
     scripts: {
@@ -65,6 +72,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.loadNpmTasks('grunt-contrib-jasmine');
+  grunt.loadNpmTasks('grunt-contrib-connect');
   grunt.loadNpmTasks('grunt-simple-mocha');
   grunt.loadNpmTasks('grunt-concurrent');
 

@@ -265,6 +265,11 @@
       return sources;
     };
 
+    // make an ads request immediately so we're ready when the viewer
+    // hits "play"
+    if (player.currentSrc()) {
+      player.vast.getContent(settings.url);
+    }
   };
 
   vjs.plugin('vast', vastPlugin);
