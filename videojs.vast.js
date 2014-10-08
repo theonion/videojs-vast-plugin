@@ -1,4 +1,12 @@
-(function(vjs, vast) {
+(function(factory){
+    if (typeof define === 'function' && define.amd) {
+        define(['./videojs', './vast-client', './videojs.ads'], factory);
+    } else if (typeof exports === 'object' && typeof module === 'object') {
+        factory(require('videojs'), require('vast-client'));
+    } else {
+        factory(window.videojs, window.DMVAST);
+    }
+})(function(vjs, vast) {
 "use strict";
   var
   extend = function(obj) {
@@ -268,4 +276,4 @@
   };
 
   vjs.plugin('vast', vastPlugin);
-}(window.videojs, window.DMVAST));
+});
