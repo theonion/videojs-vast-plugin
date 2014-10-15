@@ -27,8 +27,8 @@
     "lib"
   ],
   "dependencies": {
-    "videojs": "4.4.3",
-    "vast-client-js": "1.1.2",
+    "videojs": "4.9.1",
+    "vast-client-js": "1.3.0",
     "videojs-contrib-ads": "0.4.0"
   }
 }
