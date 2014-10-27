@@ -39,6 +39,7 @@
     });
 
     player.on('readyforpreroll', function() {
+      // set up and start playing preroll
       player.vast.preroll();
     });
 
@@ -138,10 +139,11 @@
       if (player.vast.showControls ) {
         player.controls(false);
       }
-      player.autoplay(true);
-      // play your linear ad content
+
+      // load linear ad sources and start playing them
       var adSources = player.vast.sources;
       player.src(adSources);
+      player.play();
 
       var clickthrough;
       if (player.vastTracker.clickThroughURLTemplate) {
@@ -197,14 +199,23 @@
     };
 
     player.vast.tearDown = function() {
+      // remove preroll buttons
       player.vast.skipButton.parentNode.removeChild(player.vast.skipButton);
       player.vast.blocker.parentNode.removeChild(player.vast.blocker);
+
       player.off('timeupdate', player.vast.timeupdate);
       player.off('ended', player.vast.tearDown);
+
+      // end ad mode
       player.ads.endLinearAdMode();
+
+      // show player controls for video
       if (player.vast.showControls ) {
         player.controls(true);
       }
+
+      // start playing the actual video
+      player.play();
     };
 
     player.vast.timeupdate = function(e) {
