@@ -25,6 +25,8 @@
         video.load = function() {};
         video.play = function() {};
 
+        video.buffered = 0;
+
         // see https://github.com/videojs/videojs-contrib-ads/blob/master/test/videojs.ads.test.js#L23
         window.setImmediate = function(callback) {
           callback.call(window);
@@ -192,8 +194,8 @@
     
     describe("tearDown", function() {
 
-      it("should end the linear ad", function() {
-        spyOn(player.ads, "endLinearAdMode");
+      it("should end the linear ad", function(done) {
+        spyOn(player.ads, "endLinearAdMode").and.callFake(done);
         spyOn(player, "off");
 
         // TODO: fix this
@@ -204,7 +206,6 @@
 
         player.vast.tearDown();
         expect(player.off).toHaveBeenCalledWith("ended", jasmine.any(Function));
-        expect(player.ads.endLinearAdMode).toHaveBeenCalled();
       });
     });
 
@@ -333,6 +334,308 @@
 
     });
 
+    describe("findOptimalVPAIDTech", function() {
+      it("should return javascript media", function() {
+        var mediaFiles = [
+          {
+            fileURL: "TRL",
+            mimeType: "video/mp4",
+            width: 640,
+            height: 360
+          },
+          {
+            fileURL: "BuddhaForRill",
+            mimeType: "video/mp4",
+            width: 853,
+            height: 480
+          },
+          {
+            fileURL: "BuddhaForRill",
+            mimeType: "application/x-shockwave-flash",
+            width: 853,
+            height: 480,
+            apiFramework: "VPAID"
+          },
+          {
+            fileURL: "BuddhaForRill",
+            mimeType: "application/javascript",
+            width: 853,
+            height: 480,
+            apiFramework: "VPAID"
+          }
+        ];
+
+        expect(player.vast.findOptimalVPAIDTech(mediaFiles).mimeType).toEqual('application/javascript');
+      });
+
+
+      it("should return flash file as the only present VPAID type in media files", function() {
+        var mediaFiles = [
+          {
+            fileURL: "TRL",
+            mimeType: "video/mp4",
+            width: 640,
+            height: 360
+          },
+          {
+            fileURL: "BuddhaForRill",
+            mimeType: "application/x-shockwave-flash",
+            width: 853,
+            height: 480,
+            apiFramework: "VPAID"
+          },
+          {
+            fileURL: "BuddhaForRill",
+            mimeType: "video/mp4",
+            width: 853,
+            height: 480
+          }
+        ];
+
+        expect(player.vast.findOptimalVPAIDTech(mediaFiles).mimeType).toEqual('application/x-shockwave-flash');
+      });
+
+      it("should return null as VPAID tech is not found", function() {
+        var mediaFiles = [
+          {
+            fileURL: "TRL",
+            mimeType: "video/mp4",
+            width: 640,
+            height: 360
+          },
+          {
+            fileURL: "BuddhaForRill",
+            mimeType: "video/mp4",
+            width: 853,
+            height: 480
+          }
+        ];
+
+        expect(player.vast.findOptimalVPAIDTech(mediaFiles)).toBeNull();
+      });
+    });
+
   });
 
+  describe("VPAID", function() {
+    var vpaidTech = {
+      "apiFramework": "VPAID",
+      "bitrate": 0,
+      "codec": null,
+      "deliveryType": "progressive",
+      "fileURL": "http://cdn-static.liverail.com/js/LiveRail.AdManager-1.0.js?LR_PUBLISHER_ID=1331&LR_FORMAT=application/javascript&LR_AUTOPLAY=0&LR_DEBUG=4",
+      "height": 480,
+      "maxBitrate": 0,
+      "mimeType": "application/javascript",
+      "minBitrate": 0,
+      "width": 640
+    };
+
+    beforeEach(function() {
+      spyOn(vast.client, "get").and.callFake(function(url, callback){
+        var response = {
+          "ads": [
+            {
+              "creatives": [
+                {
+                  "duration": 15,
+                  "mediaFiles": [vpaidTech],
+                  "skipDelay": null,
+                  "trackingEvents": {},
+                  "type": "linear",
+                  "videoClickThroughURLTemplate": null,
+                  "videoClickTrackingURLTemplates": []
+                },
+                {
+                  "type": "companion",
+                  "variations": [
+                    {
+                      "height": "250",
+                      "id": null,
+                      "staticResource": null,
+                      "trackingEvents": {},
+                      "type": null,
+                      "width": "300"
+                    },
+                    {
+                      "height": "60",
+                      "id": null,
+                      "staticResource": null,
+                      "trackingEvents": {},
+                      "type": null,
+                      "width": "300"
+                    },
+                    {
+                      "height": "90",
+                      "id": null,
+                      "staticResource": null,
+                      "trackingEvents": {},
+                      "type": null,
+                      "width": "728"
+                    }
+                  ],
+                  "videoClickTrackingURLTemplates": []
+                }
+              ],
+              "errorURLTemplates": [],
+              "impressionURLTemplates": [
+                null
+              ]
+            }
+          ],
+          "errorURLTemplates": []
+        };
+        callback(response);
+      });
+
+      function MockVPAIDAd() {
+        var self = this;
+
+        this.listeners = {};
+        this.totalListeners = function() {
+          var total = 0;
+          for (var event in self.listeners) {
+            if (!self.listeners.hasOwnProperty(event)) {
+              continue;
+            }
+
+            total += self.listeners[event].length;
+          }
+
+          return total;
+        };
+
+        this.handshakeVersion = function(version) {
+          return version;
+        };
+
+        this.initAd = function() {
+          this.trigger('AdLoaded');
+        };
+
+        this.subscribe = function(func, event) {
+          if (self.listeners[event] === undefined) {
+            self.listeners[event] = [];
+          }
+          self.listeners[event].push(func);
+        };
+
+        this.unsubscribe = function(func, event) {
+          if (self.listeners[event] === undefined) {
+            return;
+          }
+
+          var index = self.listeners[event].indexOf(func);
+          if (index >= 0) {
+            self.listeners[event].splice(index, 1);
+          }
+        };
+
+        this.trigger = function(event) {
+          if (self.listeners[event]) {
+            for (var i = 0; i < self.listeners[event].length; i++) {
+              self.listeners[event][i]();
+            }
+          }
+        };
+
+        return this;
+      }
+
+      var ad = new MockVPAIDAd();
+      this.mockAd = ad;
+      spyOn(player.vast, 'loadVPAIDResource').and.callFake(function(mediaFile, callback) {
+        callback(ad);
+      });
+    });
+
+    it("should load VAST, parse vpaid and call adsready", function(done) {
+      var adsReadyCallback = jasmine.createSpy('adsReadyCallback').and.callFake(done);
+      spyOn(this.mockAd, 'handshakeVersion').and.callThrough();
+      spyOn(this.mockAd, 'initAd').and.callThrough();
+
+      player.one('adsready', adsReadyCallback);
+
+
+      player.vast.getContent("fake url");
+
+
+      expect(player.vast.loadVPAIDResource).toHaveBeenCalled();
+      expect(this.mockAd.handshakeVersion).toHaveBeenCalled();
+      expect(this.mockAd.initAd).toHaveBeenCalled();
+      expect(player.vastTracker).toBeDefined();
+    });
+
+    describe('events', function() {
+      ['AdStopped', 'AdError'].forEach(function(event) {
+        it('should call tearDown as soon as ' + event + ' event is triggered', function() {
+          spyOn(player.vast, 'tearDown');
+
+          player.vast.getContent("fake url");
+          this.mockAd.trigger(event);
+
+          expect(player.vast.tearDown).toHaveBeenCalled();
+        });
+      });
+
+      it('should call tearDown and track event to VAST when AdSkipped event is triggered', function() {
+        spyOn(player.vast, 'tearDown');
+
+        player.vast.getContent("fake url");
+        spyOn(player.vastTracker, 'skip');
+        this.mockAd.trigger('AdSkipped');
+
+        expect(player.vast.tearDown).toHaveBeenCalled();
+        expect(player.vastTracker.skip).toHaveBeenCalled();
+      });
+    });
+
+    describe('tearDown', function() {
+      it('should correctly remove vpaid video element and leave original after tearDown', function() {
+        spyOn(player.vast, 'tearDown').and.callThrough();
+
+        player.vast.getContent("fake url");
+        expect(document.querySelectorAll('video').length).toEqual(2);
+        this.mockAd.trigger('AdStopped');
+
+        expect(player.vast.tearDown).toHaveBeenCalled();
+        expect(document.querySelectorAll('video').length).toEqual(1);
+      });
+
+      it('should remove all listeners from vpaid after tear down', function() {
+        var callback = jasmine.createSpy('AdStoppedCallback');
+
+        player.vast.getContent("fake url");
+        player.vast.onVPAID('AdStopped', callback);
+        player.vast.tearDown();
+
+        expect(callback).not.toHaveBeenCalled();
+        expect(this.mockAd.totalListeners()).toEqual(0);
+      });
+
+      it('should remove vpaid ad controls after tear down', function() {
+        player.vast.getContent("fake url");
+
+        expect(document.querySelector('.vast-ad-control')).not.toBeNull();
+        player.vast.tearDown();
+        expect(document.querySelector('.vast-ad-control')).toBeNull();
+      });
+    });
+  });
+
+  describe('Localization', function() {
+    it('should use video.js localization if vjs.localize is available', function() {
+      spyOn(player, 'localize');
+      player.vast.createSkipButton();
+      player.vast.enableSkipButton();
+
+      expect(player.localize).toHaveBeenCalled();
+    });
+
+    it('should fallback to default text if vjs.localize is not available (prior to video.js 4.7.3)', function() {
+      player.localize = undefined;
+      player.vast.createSkipButton();
+      player.vast.enableSkipButton();
+    });
+  });
 })(window, videojs, DMVAST);

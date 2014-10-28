@@ -35,3 +35,28 @@
     right: 0;
     bottom: 0;
 }
+.vast-ad-control {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: none;
+}
+
+.vjs-ad-playing .vast-ad-control {
+    display: block;
+}
+.vast-advertisement {
+    color: white;
+    text-shadow: 0 0 0.2em #000;
+    padding: 0 0 0.2em 0.5em;
+    display: inline-block;
+}
+.vast-progress-holder {
+    height: 0.3em;
+    position: relative;
+}
+.vast-progress-holder .vjs-play-progress {
+    height: 100%;
+    width: 0%;
+}
