@@ -251,7 +251,6 @@
       }
       if (vpaidPlayer) {
         vpaidPlayer.parentNode.removeChild(vpaidPlayer);
-        player.el().querySelector('.vjs-tech').style.display = '';
       }
 
       //complete in async manner. Sometimes when shutdown too soon, video does not start playback
@@ -434,13 +433,17 @@
         };
         if (/iphone|ipad|android/gi.test(navigator.userAgent)) {
           pref.videoSlot = player.el().querySelector('.vjs-tech');
-        } else {
+          if (pref.videoSlot.tagName != 'video') { //might be using non-default source, fallback to custom video slot
+            pref.videoSlot = undefined;
+          }
+        }
+
+        if (!pref.videoSlot) {
           vpaidPlayer = document.createElement('video');
 
           vpaidPlayer.className = 'vast-blocker';
-          root.insertBefore(vpaidPlayer, root.querySelector('.vjs-tech'));
+          root.appendChild(vpaidPlayer);
           pref.videoSlot = vpaidPlayer;
-          player.el().querySelector('.vjs-tech').style.display = "none";
         }
 
         player.on('resize', function() {

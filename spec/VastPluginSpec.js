@@ -591,17 +591,15 @@
     });
 
     describe('tearDown', function() {
-      it('should correctly remove vpaid video element and show original after tearDown', function() {
+      it('should correctly remove vpaid video element and leave original after tearDown', function() {
         spyOn(player.vast, 'tearDown').and.callThrough();
 
         player.vast.getContent("fake url");
         expect(document.querySelectorAll('video').length).toEqual(2);
-        expect(document.querySelector('.vjs-tech').style.display).toEqual('none');
         this.mockAd.trigger('AdStopped');
 
         expect(player.vast.tearDown).toHaveBeenCalled();
         expect(document.querySelectorAll('video').length).toEqual(1);
-        expect(document.querySelector('.vjs-tech').style.display).toEqual('');
       });
 
       it('should remove all listeners from vpaid after tear down', function() {
