@@ -173,7 +173,11 @@
         // load linear ad sources and start playing them
         var adSources = player.vast.sources;
         player.src(adSources);
-        player.play();
+
+        // only play if autoplay is true
+        if (player.autoplay()) {
+          player.play();
+        }
 
         var clickthrough;
         if (player.vastTracker.clickThroughURLTemplate) {
