@@ -317,6 +317,9 @@
     if (player.currentSrc()) {
       player.vast.getContent(settings.url);
     }
+
+    // return player to allow this plugin to be chained
+    return player;
   };
 
   vjs.plugin('vast', vastPlugin);
