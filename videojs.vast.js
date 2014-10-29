@@ -147,7 +147,8 @@
               }
 
               if (player.vastTracker) {
-                player.trigger("adsready");
+                // vast tracker and content is ready to go, trigger event
+                player.trigger('vast-ready');
                 break;
               } else {
                 // Inform ad server we can't find suitable media file for this ad
@@ -173,11 +174,6 @@
         // load linear ad sources and start playing them
         var adSources = player.vast.sources;
         player.src(adSources);
-
-        // only play if autoplay is true
-        if (player.autoplay()) {
-          player.play();
-        }
 
         var clickthrough;
         if (player.vastTracker.clickThroughURLTemplate) {
@@ -229,7 +225,9 @@
           }
         };
 
-        player.one("ended", player.vast.tearDown);
+        player.one('ended', player.vast.tearDown);
+
+        player.trigger('vast-preroll-ready');
       },
 
       tearDown: function() {
@@ -237,6 +235,7 @@
         player.vast.skipButton.parentNode.removeChild(player.vast.skipButton);
         player.vast.blocker.parentNode.removeChild(player.vast.blocker);
 
+        // remove vast-specific events
         player.off('timeupdate', player.vast.timeupdate);
         player.off('ended', player.vast.tearDown);
 
@@ -248,8 +247,7 @@
           player.controls(true);
         }
 
-        // start playing the actual video
-        player.play();
+        player.trigger('vast-preroll-removed');
       },
 
       timeupdate: function(e) {
@@ -284,11 +282,29 @@
       return null;
     }
 
-    // set up vast plugin
+    // set up vast plugin, then set up events here
     player.vast = new Vast(player, settings);
 
-    // videojs-ads triggers this when src changes
+    player.on('vast-ready', function () {
+      // vast is prepared with content, set up ads and trigger ready function
+      player.ads(settings.adsSettings);
+      player.trigger('adsready');
+    });
+
+    player.on('vast-preroll-ready', function () {
+      // start playing preroll, note: this should happen this way no matter what, even if autoplay
+      //  has been disabled since the preroll function shouldn't run until the user/autoplay has
+      //  caused the main video to trigger this preroll function
+      player.play();
+    });
+
+    player.on('vast-preroll-removed', function () {
+      // preroll done or removed, start playing the actual video
+      player.play();
+    });
+
     player.on('contentupdate', function(){
+      // videojs-ads triggers this when src changes
       player.vast.getContent(settings.url);
     });
 
@@ -297,8 +313,7 @@
       player.vast.preroll();
     });
 
-    // make an ads request immediately so we're ready when the viewer
-    // hits "play"
+    // make an ads request immediately so we're ready when the viewer hits "play"
     if (player.currentSrc()) {
       player.vast.getContent(settings.url);
     }
