@@ -273,4 +273,4 @@
   };
 
   vjs.plugin('vast', vastPlugin);
-}(window.videojs, window.DMVAST));
+}(videojs, DMVAST));

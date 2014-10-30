@@ -22,6 +22,13 @@
     "grunt-contrib-watch": "~0.5.3",
     "grunt-env": "~0.4.1",
     "grunt-simple-mocha": "~0.4.0",
+
+    "karma": "^0.12.24",
+    "karma-coverage": "~0.2.5",
+    "karma-jasmine": "~0.2.0",
+    "karma-sauce-launcher": "~0.2.10",
+    "karma-phantomjs-launcher": "~0.1.4",
+    
     "lodash": "~2.4.1",
     "wd": "~0.2.12"
   },

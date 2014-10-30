@@ -1,5 +1,6 @@
-(function(window, vjs, vast) {
-  "use strict";
+"use strict";
+
+describe('videojs.vast plugin', function() {
 
   var player, isHtmlSupported, oldClearImmediate;
 
@@ -11,7 +12,7 @@
       video.src = "http://vjs.zencdn.net/v/oceans.mp4";
       video.setAttribute = "controls";
       document.body.appendChild(video);
-      isHtmlSupported = vjs.Html5.isSupported;
+      isHtmlSupported = videojs.Html5.isSupported;
       if (/phantomjs/gi.test(window.navigator.userAgent)) {
         // PhantomJS doesn't have a video element implementation
         // force support here so that the HTML5 tech is still used during
@@ -32,7 +33,7 @@
         oldClearImmediate = window.clearImmediate;
       }
     })();
-    player = vjs(id);
+    player = videojs(id);
     player.ads();
     player.vast({
       url: ""
@@ -42,7 +43,7 @@
 
   afterEach(function() {
     player.dispose();
-    vjs.Html5.isSupported = isHtmlSupported;
+    videojs.Html5.isSupported = isHtmlSupported;
     window.clearImmediate = oldClearImmediate;
   });
 
@@ -53,7 +54,7 @@
       var video = document.createElement("video");
       video.setAttribute = "controls";
       document.body.appendChild(video);
-      this.p = vjs(video);
+      this.p = videojs(video);
     });
 
     afterEach(function() {
@@ -82,10 +83,10 @@
       this.p.currentSrc = function() {
         return "video.mp4";
       };
-      spyOn(vast.client, "get");
+      spyOn(DMVAST.client, "get");
       this.p.ads();
       this.p.vast({url:"i wanna go VAST!"});
-      expect(vast.client.get).toHaveBeenCalledWith("i wanna go VAST!", jasmine.any(Function));
+      expect(DMVAST.client.get).toHaveBeenCalledWith("i wanna go VAST!", jasmine.any(Function));
     });
   });
 
@@ -238,7 +239,7 @@
 
     describe("getContent", function() {
       it("should bail out if there aren't playable media files", function() {
-        spyOn(vast.client, "get").and.callFake(function(url, callback){
+        spyOn(DMVAST.client, "get").and.callFake(function(url, callback){
             var fake_response = {
               ads: [{
                 creatives:[{
@@ -306,7 +307,7 @@
 
       describe("non-linear ads", function() {
         beforeEach(function() {
-          spyOn(vast.client, "get")
+          spyOn(DMVAST.client, "get")
             .and.callFake(function(url, callback){
               var fake_response = {
                 ads: [{
@@ -321,10 +322,10 @@
             });
         });
         it("should do nothing with non-linear ads, and report the error", function() {
-          spyOn(vast.util, "track");
+          spyOn(DMVAST.util, "track");
           spyOn(player, "trigger");
           player.vast.getContent("some url");
-          expect(vast.util.track).toHaveBeenCalledWith(
+          expect(DMVAST.util.track).toHaveBeenCalledWith(
             jasmine.any(String), jasmine.any(Object)
           );
           expect(player.trigger).toHaveBeenCalledWith("adtimeout");
@@ -334,5 +335,4 @@
     });
 
   });
-
-})(window, videojs, DMVAST);
+});
