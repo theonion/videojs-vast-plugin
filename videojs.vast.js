@@ -1,6 +1,5 @@
-'use strict';
-
-(function(vjs, vast) {
+(function(window, vjs, vast) {
+  'use strict';
 
   var extend = function(obj) {
     var arg, i, k;
@@ -22,54 +21,54 @@
 
   Vast = function (player, settings) {
 
-    var createSourceObjects = function (media_files) {
-      var sourcesByFormat = {}, i, j, tech;
-      var techOrder = player.options().techOrder;
-      for (i = 0, j = techOrder.length; i < j; i++) {
-        var techName = techOrder[i].charAt(0).toUpperCase() + techOrder[i].slice(1);
-        tech = window.videojs[techName];
+    // return vast plugin
+    return {
+      createSourceObjects: function (media_files) {
+        var sourcesByFormat = {}, i, j, tech;
+        var techOrder = player.options().techOrder;
+        for (i = 0, j = techOrder.length; i < j; i++) {
+          var techName = techOrder[i].charAt(0).toUpperCase() + techOrder[i].slice(1);
+          tech = window.videojs[techName];
 
-        // Check if the current tech is defined before continuing
-        if (!tech) {
-          continue;
-        }
+          // Check if the current tech is defined before continuing
+          if (!tech) {
+            continue;
+          }
 
-        // Check if the browser supports this technology
-        if (tech.isSupported()) {
-          // Loop through each source object
-          for (var a = 0, b = media_files.length; a < b; a++) {
-            var media_file = media_files[a];
-            var source = {type:media_file.mimeType, src:media_file.fileURL};
-            // Check if source can be played with this technology
-            if (tech.canPlaySource(source)) {
-              if (sourcesByFormat[techOrder[i]] === undefined) {
-                sourcesByFormat[techOrder[i]] = [];
+          // Check if the browser supports this technology
+          if (tech.isSupported()) {
+            // Loop through each source object
+            for (var a = 0, b = media_files.length; a < b; a++) {
+              var media_file = media_files[a];
+              var source = {type:media_file.mimeType, src:media_file.fileURL};
+              // Check if source can be played with this technology
+              if (tech.canPlaySource(source)) {
+                if (sourcesByFormat[techOrder[i]] === undefined) {
+                  sourcesByFormat[techOrder[i]] = [];
+                }
+                sourcesByFormat[techOrder[i]].push({
+                  type:media_file.mimeType,
+                  src: media_file.fileURL,
+                  width: media_file.width,
+                  height: media_file.height
+                });
               }
-              sourcesByFormat[techOrder[i]].push({
-                type:media_file.mimeType,
-                src: media_file.fileURL,
-                width: media_file.width,
-                height: media_file.height
-              });
             }
           }
         }
-      }
-      // Create sources in preferred format order
-      var sources = [];
-      for (j = 0; j < techOrder.length; j++) {
-        tech = techOrder[j];
-        if (sourcesByFormat[tech] !== undefined) {
-          for (i = 0; i < sourcesByFormat[tech].length; i++) {
-            sources.push(sourcesByFormat[tech][i]);
+        // Create sources in preferred format order
+        var sources = [];
+        for (j = 0; j < techOrder.length; j++) {
+          tech = techOrder[j];
+          if (sourcesByFormat[tech] !== undefined) {
+            for (i = 0; i < sourcesByFormat[tech].length; i++) {
+              sources.push(sourcesByFormat[tech][i]);
+            }
           }
         }
-      }
-      return sources;
-    };
+        return sources;
+      },
 
-    // return vast plugin
-    return {
       getContent: function () {
 
         // query vast url given in settings
@@ -85,7 +84,7 @@
 
                   if (creative.mediaFiles.length) {
 
-                    player.vast.sources = createSourceObjects(creative.mediaFiles);
+                    player.vast.sources = player.vast.createSourceObjects(creative.mediaFiles);
 
                     if (!player.vast.sources.length) {
                       player.trigger('adtimeout');
@@ -167,13 +166,12 @@
       preroll: function() {
         player.ads.startLinearAdMode();
         player.vast.showControls = player.controls();
-        if (player.vast.showControls ) {
+        if (player.vast.showControls) {
           player.controls(false);
         }
 
         // load linear ad sources and start playing them
-        var adSources = player.vast.sources;
-        player.src(adSources);
+        player.src(player.vast.sources);
 
         var clickthrough;
         if (player.vastTracker.clickThroughURLTemplate) {
@@ -185,7 +183,7 @@
             }
           )[0];
         }
-        var blocker = document.createElement("a");
+        var blocker = window.document.createElement("a");
         blocker.className = "vast-blocker";
         blocker.href = clickthrough || "#";
         blocker.target = "_blank";
@@ -203,7 +201,7 @@
         player.vast.blocker = blocker;
         player.el().insertBefore(blocker, player.controlBar.el());
 
-        var skipButton = document.createElement("div");
+        var skipButton = window.document.createElement("div");
         skipButton.className = "vast-skip-button";
         if (settings.skip < 0) {
           skipButton.style.display = "none";
@@ -218,7 +216,7 @@
             player.vastTracker.skip();
             player.vast.tearDown();
           }
-          if(Event.prototype.stopPropagation !== undefined) {
+          if(window.Event.prototype.stopPropagation !== undefined) {
             e.stopPropagation();
           } else {
             return false;
@@ -272,7 +270,7 @@
 
     // check that we have the ads plugin
     if (player.ads === undefined) {
-      console.error('vast video plugin requires videojs-contrib-ads, vast plugin not initialized');
+      window.console.error('vast video plugin requires videojs-contrib-ads, vast plugin not initialized');
       return null;
     }
 
@@ -287,7 +285,6 @@
 
     player.on('vast-ready', function () {
       // vast is prepared with content, set up ads and trigger ready function
-      player.ads(settings.adsSettings);
       player.trigger('adsready');
     });
 
@@ -323,4 +320,5 @@
   };
 
   vjs.plugin('vast', vastPlugin);
-}(window.videojs, window.DMVAST));
+
+}(window, videojs, DMVAST));
