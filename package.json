@@ -24,6 +24,7 @@
     "grunt-simple-mocha": "~0.4.0",
 
     "karma": "^0.12.24",
+    "grunt-karma": "~0.9.0",
     "karma-coverage": "~0.2.5",
     "karma-jasmine": "~0.2.0",
     "karma-sauce-launcher": "~0.2.10",
