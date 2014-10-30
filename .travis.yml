@@ -5,7 +5,9 @@ before_install:
 - npm install -g grunt-cli
 - bower install
 script:
-- karma start
+- grunt karma
+after_script:
+- grunt coveralls
 addons:
   sauce_connect: true
 env:

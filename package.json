@@ -28,6 +28,7 @@
     "karma-jasmine": "~0.2.0",
     "karma-sauce-launcher": "~0.2.10",
     "karma-phantomjs-launcher": "~0.1.4",
+    "grunt-karma-coveralls": "2.5.1",
     
     "lodash": "~2.4.1",
     "wd": "~0.2.12"
