@@ -11,6 +11,10 @@ after_script:
 - grunt coveralls
 addons:
   sauce_connect: true
+cache:
+  directories:
+  - node_modules
+  - bower_components
 env:
   global:
   - secure: Z2owUW/1mCKcHRsIlNVn5K71FTtKr1o2APrm5FhFnHhszp3toq4Egk97JdFvXtVWh80CjPJBlUoCX1LGCccIWu7x0veJTi3hqpPw8XN1+fsmJSR5iHP7r1M4n/fjT03WC+6TxhCWiPUd1kYky3i3cyM1Q0l54KfFDWvBKREyCCU=
