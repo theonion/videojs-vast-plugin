@@ -1,11 +1,12 @@
 {
   "name": "videojs-vast-plugin",
-  "version": "0.1.8",
+  "version": "0.1.9",
   "homepage": "https://github.com/theonion/videojs-vast-plugin",
   "authors": [
     "Shaker Islam <sislam@theonion.com>",
     "Chris Sinchok <csinchok@theonion.com>",
-    "Sean Bloomfield <sbloomfield@theonion.com>"
+    "Sean Bloomfield <sbloomfield@theonion.com>",
+    "Andrew Kos <akos@theonion.com>"
   ],
   "description": "A VAST plugin for VideoJS",
   "main": "videojs.vast.js",
