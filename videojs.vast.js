@@ -87,7 +87,7 @@
                     player.vast.sources = player.vast.createSourceObjects(creative.mediaFiles);
 
                     if (!player.vast.sources.length) {
-                      player.trigger('adtimeout');
+                      player.trigger('adscanceled');
                       return;
                     }
 
@@ -158,7 +158,7 @@
 
           if (!player.vastTracker) {
             // No pre-roll, start video
-            player.trigger('adtimeout');
+            player.trigger('adscanceled');
           }
         });
       },
@@ -274,12 +274,6 @@
       return null;
     }
 
-    // if we don't have a vast url, just bail out
-    if (!settings.url) {
-      player.trigger('adtimeout');
-      return null;
-    }
-
     // set up vast plugin, then set up events here
     player.vast = new Vast(player, settings);
 
@@ -306,6 +300,11 @@
     });
 
     player.on('readyforpreroll', function() {
+      // if we don't have a vast url, just bail out
+      if (!settings.url) {
+        player.trigger('adscanceled');
+        return null;
+      }
       // set up and start playing preroll
       player.vast.preroll();
     });

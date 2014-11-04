@@ -30,6 +30,6 @@
   "dependencies": {
     "videojs": "4.4.3",
     "vast-client-js": "1.1.2",
-    "videojs-contrib-ads": "0.4.0"
+    "videojs-contrib-ads": "theonion/videojs-contrib-ads#e4718b919ef772ca24619a30e2bf5f6cc27ac8f1"
   }
 }
