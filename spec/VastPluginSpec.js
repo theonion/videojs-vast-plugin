@@ -238,6 +238,5 @@ describe('videojs.vast plugin', function() {
       });
 
     });
-
   });
 });

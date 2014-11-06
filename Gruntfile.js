@@ -5,8 +5,6 @@ var specs = "spec/*Spec.js",
 
 var _ = require('lodash');
 
-var desireds = require('./spec/desireds.js');
-
 var gruntConfig = {
   env: {
     // dynamically filled
