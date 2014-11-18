@@ -87,7 +87,7 @@
                     player.vast.sources = player.vast.createSourceObjects(creative.mediaFiles);
 
                     if (!player.vast.sources.length) {
-                      player.trigger('adtimeout');
+                      player.trigger('adscanceled');
                       return;
                     }
 
@@ -118,7 +118,7 @@
 
           if (!player.vastTracker) {
             // No pre-roll, start video
-            player.trigger('adtimeout');
+            player.trigger('adscanceled');
           }
         });
       },
@@ -135,13 +135,11 @@
               }
               player.vastTracker.setProgress(player.currentTime());
             },
-            playFn = function() {
-              if (player.ads.state === 'ad-playback') {
-                player.vastTracker.setPaused(false);
-              }
-            },
             pauseFn = function() {
               player.vastTracker.setPaused(true);
+              player.one('play', function(){
+                player.vastTracker.setPaused(false);
+              });
             },
             errorFn = function() {
               // Inform ad server we couldn't play the media file for this ad
@@ -152,14 +150,12 @@
 
         player.on('canplay', canplayFn);
         player.on('timeupdate', timeupdateFn);
-        player.on('play', playFn);
         player.on('pause', pauseFn);
         player.on('error', errorFn);
 
-        player.one('ended', function() {
+        player.one('vast-preroll-removed', function() {
           player.off('canplay', canplayFn);
           player.off('timeupdate', timeupdateFn);
-          player.off('play', playFn);
           player.off('pause', pauseFn);
           player.off('error', errorFn);
           if (!errorOccurred) {
@@ -281,12 +277,6 @@
       return null;
     }
 
-    // if we don't have a vast url, just bail out
-    if (!settings.url) {
-      player.trigger('adtimeout');
-      return null;
-    }
-
     // set up vast plugin, then set up events here
     player.vast = new Vast(player, settings);
 
@@ -313,6 +303,11 @@
     });
 
     player.on('readyforpreroll', function() {
+      // if we don't have a vast url, just bail out
+      if (!settings.url) {
+        player.trigger('adscanceled');
+        return null;
+      }
       // set up and start playing preroll
       player.vast.preroll();
     });
