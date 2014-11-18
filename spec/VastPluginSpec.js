@@ -34,10 +34,10 @@ describe('videojs.vast plugin', function() {
       }
     })();
     player = videojs(id);
-    player.ads();
-    player.vast({
-      url: ""
-    });
+    // player.ads();
+    // player.vast({
+    //   url: ""
+    // });
   });
 
 
@@ -70,11 +70,11 @@ describe('videojs.vast plugin', function() {
     });
 
     it("should bail out if no url is provided", function() {
-      spyOn(this.p, "trigger");
       this.p.ads();
       var result = this.p.vast({});
-      expect(result).toBe(null);
-      expect(this.p.trigger).toHaveBeenCalledWith("adtimeout");
+      spyOn(this.p, "trigger").and.callThrough();
+      this.p.trigger('readyforpreroll');
+      expect(this.p.trigger).toHaveBeenCalledWith("adscanceled");
     });
 
     it("should request an ad if a source is already loaded", function() {
@@ -122,6 +122,7 @@ describe('videojs.vast plugin', function() {
     describe("tearDown", function() {
 
       it("should end the linear ad", function() {
+        player.ads();
         player.vast({ url: 'balhbahblhab' });
 
         spyOn(player.ads, "endLinearAdMode");
@@ -143,6 +144,7 @@ describe('videojs.vast plugin', function() {
     describe("preroll", function() {
 
       beforeEach(function() {
+        player.ads();
         player.vast({ url: 'balhbahblhab' });
         player.vastTracker = {
           clickThroughURLTemplate: "a whole new page",
@@ -163,7 +165,7 @@ describe('videojs.vast plugin', function() {
       });
 
       it("should end the ad", function() {
-        spyOn(player, "one");
+        spyOn(player, "one");        
         player.vast.preroll();
         expect(player.one).toHaveBeenCalledWith("ended", jasmine.any(Function));
       });
@@ -187,7 +189,7 @@ describe('videojs.vast plugin', function() {
 
         spyOn(player, "trigger");
         player.vast.getContent("some url");
-        expect(player.trigger).toHaveBeenCalledWith("adtimeout");
+        expect(player.trigger).toHaveBeenCalledWith("adscanceled");
       });
 
       describe("linear ads", function() {
@@ -231,11 +233,10 @@ describe('videojs.vast plugin', function() {
           expect(DMVAST.util.track).toHaveBeenCalledWith(
             jasmine.any(String), jasmine.any(Object)
           );
-          expect(player.trigger).toHaveBeenCalledWith("adtimeout");
+          expect(player.trigger).toHaveBeenCalledWith("adscanceled");
         });
       });
 
     });
-
   });
 });

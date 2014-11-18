@@ -87,51 +87,11 @@
                     player.vast.sources = player.vast.createSourceObjects(creative.mediaFiles);
 
                     if (!player.vast.sources.length) {
-                      player.trigger('adtimeout');
+                      player.trigger('adscanceled');
                       return;
                     }
 
                     player.vastTracker = new vast.tracker(ad, creative);
-
-                    var errorOccurred = false,
-                        canplayFn = function() {
-                          this.vastTracker.load();
-                        },
-                        timeupdateFn = function() {
-                          if (isNaN(this.vastTracker.assetDuration)) {
-                            this.vastTracker.assetDuration = this.duration();
-                          }
-                          this.vastTracker.setProgress(this.currentTime());
-                        },
-                        playFn = function() {
-                          this.vastTracker.setPaused(false);
-                        },
-                        pauseFn = function() {
-                          this.vastTracker.setPaused(true);
-                        },
-                        errorFn = function() {
-                          // Inform ad server we couldn't play the media file for this ad
-                          vast.util.track(ad.errorURLTemplates, {ERRORCODE: 405});
-                          errorOccurred = true;
-                          player.trigger('ended');
-                        };
-
-                    player.on('canplay', canplayFn);
-                    player.on('timeupdate', timeupdateFn);
-                    player.on('play', playFn);
-                    player.on('pause', pauseFn);
-                    player.on('error', errorFn);
-
-                    player.one('ended', function() {
-                      player.off('canplay', canplayFn);
-                      player.off('timeupdate', timeupdateFn);
-                      player.off('play', playFn);
-                      player.off('pause', pauseFn);
-                      player.off('error', errorFn);
-                      if (!errorOccurred) {
-                        this.vastTracker.complete();
-                      }
-                    });
 
                     foundCreative = true;
                   }
@@ -158,7 +118,48 @@
 
           if (!player.vastTracker) {
             // No pre-roll, start video
-            player.trigger('adtimeout');
+            player.trigger('adscanceled');
+          }
+        });
+      },
+
+      setupEvents: function() {
+
+        var errorOccurred = false,
+            canplayFn = function() {
+              player.vastTracker.load();
+            },
+            timeupdateFn = function() {
+              if (isNaN(player.vastTracker.assetDuration)) {
+                player.vastTracker.assetDuration = player.duration();
+              }
+              player.vastTracker.setProgress(player.currentTime());
+            },
+            pauseFn = function() {
+              player.vastTracker.setPaused(true);
+              player.one('play', function(){
+                player.vastTracker.setPaused(false);
+              });
+            },
+            errorFn = function() {
+              // Inform ad server we couldn't play the media file for this ad
+              vast.util.track(player.vastTracker.ad.errorURLTemplates, {ERRORCODE: 405});
+              errorOccurred = true;
+              player.trigger('ended');
+            };
+
+        player.on('canplay', canplayFn);
+        player.on('timeupdate', timeupdateFn);
+        player.on('pause', pauseFn);
+        player.on('error', errorFn);
+
+        player.one('vast-preroll-removed', function() {
+          player.off('canplay', canplayFn);
+          player.off('timeupdate', timeupdateFn);
+          player.off('pause', pauseFn);
+          player.off('error', errorFn);
+          if (!errorOccurred) {
+            player.vastTracker.complete();
           }
         });
       },
@@ -223,6 +224,8 @@
           }
         };
 
+        player.vast.setupEvents();
+
         player.one('ended', player.vast.tearDown);
 
         player.trigger('vast-preroll-ready');
@@ -274,12 +277,6 @@
       return null;
     }
 
-    // if we don't have a vast url, just bail out
-    if (!settings.url) {
-      player.trigger('adtimeout');
-      return null;
-    }
-
     // set up vast plugin, then set up events here
     player.vast = new Vast(player, settings);
 
@@ -306,6 +303,11 @@
     });
 
     player.on('readyforpreroll', function() {
+      // if we don't have a vast url, just bail out
+      if (!settings.url) {
+        player.trigger('adscanceled');
+        return null;
+      }
       // set up and start playing preroll
       player.vast.preroll();
     });
