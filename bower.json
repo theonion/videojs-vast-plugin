@@ -1,6 +1,6 @@
 {
   "name": "videojs-vast-plugin",
-  "version": "0.1.9",
+  "version": "0.2.1",
   "homepage": "https://github.com/theonion/videojs-vast-plugin",
   "authors": [
     "Shaker Islam <sislam@theonion.com>",
