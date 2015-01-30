@@ -299,7 +299,7 @@
 
     player.on('contentupdate', function(){
       // videojs-ads triggers this when src changes
-      player.vast.getContent(settings.url);
+      player.vast.getContent();
     });
 
     player.on('readyforpreroll', function() {
@@ -314,7 +314,7 @@
 
     // make an ads request immediately so we're ready when the viewer hits "play"
     if (player.currentSrc()) {
-      player.vast.getContent(settings.url);
+      player.vast.getContent();
     }
 
     // return player to allow this plugin to be chained
