@@ -23,6 +23,22 @@
 
     // return vast plugin
     return {
+      skip: function(skip) {
+        if (skip === undefined) {
+          return settings.skip;
+        } else {
+          settings.skip = skip;
+        }
+      },
+
+      url: function(url) {
+        if (url === undefined) {
+          return settings.url;
+        } else {
+          settings.url = url;
+        }
+      },
+
       createSourceObjects: function (media_files) {
         var sourcesByFormat = {}, i, j, tech;
         var techOrder = player.options().techOrder;
