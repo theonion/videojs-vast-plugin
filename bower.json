@@ -6,7 +6,8 @@
     "Shaker Islam <sislam@theonion.com>",
     "Chris Sinchok <csinchok@theonion.com>",
     "Sean Bloomfield <sbloomfield@theonion.com>",
-    "Andrew Kos <akos@theonion.com>"
+    "Andrew Kos <akos@theonion.com>",
+    "Vince Forgione <vforgione@theonion.com>"
   ],
   "description": "A VAST plugin for VideoJS",
   "main": "videojs.vast.js",
@@ -29,7 +30,7 @@
   ],
   "dependencies": {
     "videojs": "4.4.3",
-    "vast-client-js": "1.1.2",
+    "vast-client-js": "http://github.com/theonion/vast-client-js.git#b66298c929ea855f695a949bdaf79869c4af7f10",
     "videojs-contrib-ads": "0.5.0"
   }
 }
