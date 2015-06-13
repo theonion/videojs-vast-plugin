@@ -23,6 +23,22 @@
 
     // return vast plugin
     return {
+      skip: function(skip) {
+        if (skip === undefined) {
+          return settings.skip;
+        } else {
+          settings.skip = skip;
+        }
+      },
+
+      url: function(url) {
+        if (url === undefined) {
+          return settings.url;
+        } else {
+          settings.url = url;
+        }
+      },
+
       createSourceObjects: function (media_files) {
         var sourcesByFormat = {}, i, j, tech;
         var techOrder = player.options().techOrder;
@@ -299,7 +315,7 @@
 
     player.on('contentupdate', function(){
       // videojs-ads triggers this when src changes
-      player.vast.getContent(settings.url);
+      player.vast.getContent();
     });
 
     player.on('readyforpreroll', function() {
@@ -314,7 +330,7 @@
 
     // make an ads request immediately so we're ready when the viewer hits "play"
     if (player.currentSrc()) {
-      player.vast.getContent(settings.url);
+      player.vast.getContent();
     }
 
     // return player to allow this plugin to be chained
