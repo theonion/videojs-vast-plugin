@@ -35,25 +35,19 @@
             continue;
           }
 
-          // Check if the browser supports this technology
-          if (tech.isSupported()) {
-            // Loop through each source object
-            for (var a = 0, b = media_files.length; a < b; a++) {
-              var media_file = media_files[a];
-              var source = {type:media_file.mimeType, src:media_file.fileURL};
-              // Check if source can be played with this technology
-              if (tech.canPlaySource(source)) {
-                if (sourcesByFormat[techOrder[i]] === undefined) {
-                  sourcesByFormat[techOrder[i]] = [];
-                }
-                sourcesByFormat[techOrder[i]].push({
-                  type:media_file.mimeType,
-                  src: media_file.fileURL,
-                  width: media_file.width,
-                  height: media_file.height
-                });
-              }
+          // Loop through each source object
+          for (var a = 0, b = media_files.length; a < b; a++) {
+            var media_file = media_files[a];
+            var source = {type:media_file.mimeType, src:media_file.fileURL};
+            if (sourcesByFormat[techOrder[i]] === undefined) {
+              sourcesByFormat[techOrder[i]] = [];
             }
+            sourcesByFormat[techOrder[i]].push({
+              type:media_file.mimeType,
+              src: media_file.fileURL,
+              width: media_file.width,
+              height: media_file.height
+            });
           }
         }
         // Create sources in preferred format order
@@ -145,17 +139,17 @@
               // Inform ad server we couldn't play the media file for this ad
               vast.util.track(player.vastTracker.ad.errorURLTemplates, {ERRORCODE: 405});
               errorOccurred = true;
-              player.trigger('ended');
+              player.trigger('adended');
             };
 
         player.on('canplay', canplayFn);
-        player.on('timeupdate', timeupdateFn);
+        player.on('adtimeupdate', timeupdateFn);
         player.on('pause', pauseFn);
         player.on('error', errorFn);
 
         player.one('vast-preroll-removed', function() {
           player.off('canplay', canplayFn);
-          player.off('timeupdate', timeupdateFn);
+          player.off('adtimeupdate', timeupdateFn);
           player.off('pause', pauseFn);
           player.off('error', errorFn);
           if (!errorOccurred) {
@@ -210,7 +204,7 @@
         player.vast.skipButton = skipButton;
         player.el().appendChild(skipButton);
 
-        player.on("timeupdate", player.vast.timeupdate);
+        player.on("adtimeupdate", player.vast.timeupdate);
 
         skipButton.onclick = function(e) {
           if((' ' + player.vast.skipButton.className + ' ').indexOf(' enabled ') >= 0) {
@@ -226,7 +220,7 @@
 
         player.vast.setupEvents();
 
-        player.one('ended', player.vast.tearDown);
+        player.one('adended', player.vast.tearDown);
 
         player.trigger('vast-preroll-ready');
       },
@@ -237,8 +231,8 @@
         player.vast.blocker.parentNode.removeChild(player.vast.blocker);
 
         // remove vast-specific events
-        player.off('timeupdate', player.vast.timeupdate);
-        player.off('ended', player.vast.tearDown);
+        player.off('adtimeupdate', player.vast.timeupdate);
+        player.off('adended', player.vast.tearDown);
 
         // end ad mode
         player.ads.endLinearAdMode();
