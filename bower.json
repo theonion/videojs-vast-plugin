@@ -29,8 +29,8 @@
     "lib"
   ],
   "dependencies": {
-    "videojs": "4.4.3",
+    "videojs": "5.2.1",
     "vast-client-js": "http://github.com/theonion/vast-client-js.git#a0529f00c96f5961c08ab0011df19fd124828e87",
-    "videojs-contrib-ads": "0.5.0"
+    "videojs-contrib-ads": "https://github.com/videojs/videojs-contrib-ads/tree/vjs-5-upgrade"
   }
 }

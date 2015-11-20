@@ -28,7 +28,7 @@
         var techOrder = player.options().techOrder;
         for (i = 0, j = techOrder.length; i < j; i++) {
           var techName = techOrder[i].charAt(0).toUpperCase() + techOrder[i].slice(1);
-          tech = window.videojs[techName];
+          tech = vjs.getComponent(techName);
 
           // Check if the current tech is defined before continuing
           if (!tech) {
