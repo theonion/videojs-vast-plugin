@@ -12,12 +12,12 @@ describe('videojs.vast plugin', function() {
       video.src = "http://vjs.zencdn.net/v/oceans.mp4";
       video.setAttribute = "controls";
       document.body.appendChild(video);
-      isHtmlSupported = videojs.Html5.isSupported;
+      isHtmlSupported = videojs.getComponent('Html5').isSupported;
       if (/phantomjs/gi.test(window.navigator.userAgent)) {
         // PhantomJS doesn't have a video element implementation
         // force support here so that the HTML5 tech is still used during
         // command-line test runs
-        videojs.Html5.isSupported = function() {
+        videojs.getComponent('Html5').isSupported = function() {
           return true;
         };
 
@@ -43,7 +43,7 @@ describe('videojs.vast plugin', function() {
 
   afterEach(function() {
     player.dispose();
-    videojs.Html5.isSupported = isHtmlSupported;
+    videojs.getComponent('Html5').isSupported = isHtmlSupported;
     window.clearImmediate = oldClearImmediate;
   });
 
@@ -165,7 +165,7 @@ describe('videojs.vast plugin', function() {
       });
 
       it("should end the ad", function() {
-        spyOn(player, "one");        
+        spyOn(player, "one");
         player.vast.preroll();
         expect(player.one).toHaveBeenCalledWith("ended", jasmine.any(Function));
       });
