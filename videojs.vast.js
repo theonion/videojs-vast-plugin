@@ -35,19 +35,25 @@
             continue;
           }
 
-          // Loop through each source object
-          for (var a = 0, b = media_files.length; a < b; a++) {
-            var media_file = media_files[a];
-            var source = {type:media_file.mimeType, src:media_file.fileURL};
-            if (sourcesByFormat[techOrder[i]] === undefined) {
-              sourcesByFormat[techOrder[i]] = [];
+          // Check if the browser supports this technology
+          if (tech.isSupported()) {
+            // Loop through each source object
+            for (var a = 0, b = media_files.length; a < b; a++) {
+              var media_file = media_files[a];
+              var source = {type:media_file.mimeType, src:media_file.fileURL};
+              // Check if source can be played with this technology
+              if (tech.canPlaySource(source)) {
+                if (sourcesByFormat[techOrder[i]] === undefined) {
+                  sourcesByFormat[techOrder[i]] = [];
+                }
+                sourcesByFormat[techOrder[i]].push({
+                  type:media_file.mimeType,
+                  src: media_file.fileURL,
+                  width: media_file.width,
+                  height: media_file.height
+                });
+              }
             }
-            sourcesByFormat[techOrder[i]].push({
-              type:media_file.mimeType,
-              src: media_file.fileURL,
-              width: media_file.width,
-              height: media_file.height
-            });
           }
         }
         // Create sources in preferred format order
