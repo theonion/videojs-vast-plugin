@@ -135,7 +135,7 @@ describe('videojs.vast plugin', function() {
         player.el().insertBefore(player.vast.blocker, player.controlBar.el());
 
         player.vast.tearDown();
-        expect(player.off).toHaveBeenCalledWith("ended", jasmine.any(Function));
+        expect(player.off).toHaveBeenCalledWith("adended", jasmine.any(Function));
         expect(player.ads.endLinearAdMode).toHaveBeenCalled();
       });
 
@@ -167,7 +167,7 @@ describe('videojs.vast plugin', function() {
       it("should end the ad", function() {
         spyOn(player, "one");
         player.vast.preroll();
-        expect(player.one).toHaveBeenCalledWith("ended", jasmine.any(Function));
+        expect(player.one).toHaveBeenCalledWith("adended", jasmine.any(Function));
       });
 
     });
