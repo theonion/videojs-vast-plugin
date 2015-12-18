@@ -16,7 +16,8 @@
 
   defaults = {
     // seconds before skip button shows, negative values to disable skip button altogether
-    skip: 5
+    skip: 5,
+    useVASTSkip: false
   },
 
   Vast = function (player, settings) {
@@ -92,6 +93,12 @@
                     }
 
                     player.vastTracker = new vast.tracker(ad, creative);
+
+                    if (settings.useVASTSkip === true) {
+                      if (creative.skipDelay) {
+                        settings.skip = creative.skipDelay;
+                      }
+                    }
 
                     foundCreative = true;
                   }
