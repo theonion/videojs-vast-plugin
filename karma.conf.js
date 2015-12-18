@@ -8,7 +8,7 @@ module.exports = function(config) {
 
     files: [
       'bower_components/vast-client-js/vast-client.js',
-      'bower_components/videojs/dist/video-js/video.js',
+      'bower_components/videojs/dist/video.js',
       'bower_components/videojs-contrib-ads/src/videojs.ads.js',
       'videojs.vast.js',
       'spec/VastPluginSpec.js'
