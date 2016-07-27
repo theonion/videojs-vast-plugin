@@ -67,8 +67,16 @@
                     }
                     return sources;
                 },
+                /*
+                 Makes GET request under specified url.
+                 @param links Array of url strings
+                 */
                 callTriggerLink(links){
                     var request = new XMLHttpRequest();
+
+                    if (!links || !links.length) {
+                        return;
+                    }
                     links.forEach(function (link) {
                         request.open("GET", link);
                         request.send();
@@ -109,7 +117,8 @@
                                 }
 
                                 if (player.vastTracker) {
-                                    player.vast.setupVideoDurationWatcher();
+                                    // setup video duration watching to fire events as video time goes by
+                                    player.vast.controlTrackingEvents();
                                     // vast tracker and content is ready to go, trigger event
                                     player.trigger('vast-ready');
                                     break;
@@ -126,31 +135,48 @@
                         }
                     });
                 },
-                setupVideoDurationWatcher(){
+                /*
+                 Observe video and request tracking events.
+                 */
+                controlTrackingEvents(){
+                    var completeDuration, seconds = 0, passed = 0, firedMiddle, firedFirstQuartile, firedThirdQuartile, interval;
+                    /**
+                     * Need to wait until video meta data is loaded to get video duration.
+                     * To get tech argument that is required for this function, i need to pass 'IWillNotUseThisInPlugins'.
+                     * See https://github.com/videojs/video.js/issues/2617
+                     */
                     player.on(player.tech({IWillNotUseThisInPlugins: true}), 'loadedmetadata', function () {
                         player.vast.callTriggerLink(player.vastTracker.trackingEvents['start']);
-                        var completeDuration = player.duration();
-                        var seconds = 0;
-                        var passed = 0;
-                        var firedMiddle = false;
-                        var firedfirstQuartile = false;
-                        var firedthirdQuartile = false;
-                        var interval = setInterval(function () {
-                            passed = completeDuration - ++seconds;
-                            if (passed <= completeDuration * (3 / 4) && !firedfirstQuartile) {
-                                player.vast.callTriggerLink(player.vastTracker.trackingEvents['firstQuartile']);
-                                firedfirstQuartile = true;
-                            }
-                            if (passed <= completeDuration * (1 / 4) && !firedthirdQuartile) {
-                                player.vast.callTriggerLink(player.vastTracker.trackingEvents['thirdQuartile']);
-                                firedthirdQuartile = true;
-                            }
-                            if (passed <= completeDuration * (1 / 2) && !firedMiddle) {
-                                player.vast.callTriggerLink(player.vastTracker.trackingEvents['midpoint']);
-                                firedMiddle = true;
-                            }
-                            if (seconds >= completeDuration) {
-                                player.vast.callTriggerLink(player.vastTracker.trackingEvents['complete']);
+                        completeDuration = player.duration();
+                        if (!completeDuration) {
+                            window.console.error("We couldn't obtain video duration.");
+                            return;
+                        }
+                        interval = setInterval(function () {
+                            try {
+                                passed = completeDuration - ++seconds;
+                                // First Quartile.
+                                if (passed <= completeDuration * 0.75 && !firedFirstQuartile) {
+                                    player.vast.callTriggerLink(player.vastTracker.trackingEvents['firstQuartile']);
+                                    firedFirstQuartile = true;
+                                }
+                                // Midpoint.
+                                if (passed <= completeDuration * 0.5 && !firedMiddle) {
+                                    player.vast.callTriggerLink(player.vastTracker.trackingEvents['midpoint']);
+                                    firedMiddle = true;
+                                }
+                                // Third Quartile.
+                                if (passed <= completeDuration * 0.25 && !firedThirdQuartile) {
+                                    player.vast.callTriggerLink(player.vastTracker.trackingEvents['thirdQuartile']);
+                                    firedThirdQuartile = true;
+                                }
+                                // Videoo ended.
+                                if (seconds >= completeDuration) {
+                                    player.vast.callTriggerLink(player.vastTracker.trackingEvents['complete']);
+                                    clearInterval(interval);
+                                }
+                            } catch (error) {
+                                window.console.error('Error during firing tracking events.');
                                 clearInterval(interval);
                             }
                         }, 1000);
