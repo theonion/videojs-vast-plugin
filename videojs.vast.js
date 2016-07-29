@@ -71,7 +71,7 @@
                  Makes GET request under specified url.
                  @param links Array of url strings
                  */
-                callTriggerLink(links){
+                callTriggerLink: function (links) {
                     var request = new XMLHttpRequest();
 
                     if (!links || !links.length) {
@@ -138,7 +138,7 @@
                 /*
                  Observe video and request tracking events.
                  */
-                controlTrackingEvents(){
+                controlTrackingEvents: function () {
                     var completeDuration, seconds = 0, passed = 0, firedMiddle, firedFirstQuartile, firedThirdQuartile, interval;
                     /**
                      * Need to wait until video meta data is loaded to get video duration.
