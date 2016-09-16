@@ -154,12 +154,7 @@
               return;
             }
             interval = setInterval(function () {
-
-              try {
-                player.currentTime()
-              } catch (e) {
-                isPlayerStillAlive = false
-              }
+              isPlayerStillAlive = player.el_ ? true : false
               if (!isPlayerStillAlive) {
                 clearInterval(interval);
               }
