@@ -140,7 +140,7 @@
          */
         controlTrackingEvents: function () {
           var completeDuration, passed = 0, firedMiddle, firedFirstQuartile, firedThirdQuartile, interval;
-          let isPlayerStillAlive = true
+          var isPlayerStillAlive = true;
           /**
            * Need to wait until video meta data is loaded to get video duration.
            * To get tech argument that is required for this function, i need to pass 'IWillNotUseThisInPlugins'.
