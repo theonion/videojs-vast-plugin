@@ -181,7 +181,6 @@
                   clearInterval(interval);
                 }
               } catch (error) {
-                window.console.error('Error during firing tracking events.', error);
                 clearInterval(interval);
               }
             }, 700);
